@@ -1,0 +1,61 @@
+/*
+ * 视频作者页, 直播作者页可公用样式 
+ */
+
+.videos {
+  padding: 1.5rem .5rem;
+  background-color: #fff;
+}
+
+.video__panel:not(:last-child) {
+  margin-bottom: 1.5rem;
+}
+
+.video__cover {
+  position: relative;
+}
+
+.video__cover>img {
+  width: 100%;
+  border-radius: .3rem;
+}
+
+.video__cover-mask {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 64px;
+  transform: translate(-50%, -50%);
+}
+
+.video__duration {
+  position: absolute;
+  bottom: .5rem;
+  right: .5rem;
+  padding: .2rem;
+  background-color: rgba(0, 0, 0, .6);
+  border-radius: .2rem;
+  font-size: .6rem;
+  color: #fff;
+}
+
+.video__title {
+  padding: .5rem 0;
+  font-size: .75rem;
+}
+
+.video__params {
+  font-size: .6rem;
+  color: #a0a0a0;
+}
+
+.video__params>div:last-child {
+  display: flex;
+  align-items: center;
+}
+
+.video__params>div:last-child img {
+  margin: 0 .2rem;
+  width: .75rem;
+  height: .75rem;
+}

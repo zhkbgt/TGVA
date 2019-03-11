@@ -1,0 +1,83 @@
+/*
+ * 直播列表页样式 
+ */
+
+body {
+  background-color: #ffffff;
+}
+
+.videos {
+  padding: 1.5rem .5rem 0;
+}
+
+.video__panel:not(:last-child) {
+  margin-bottom: 1.5rem;
+}
+
+.video__cover {
+  position: relative;
+}
+
+.video__cover>img {
+  width: 100%;
+  border-radius: .3rem;
+}
+
+.video__cover-mask {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 64px;
+  transform: translate(-50%, -50%);
+}
+
+.video__status {
+  position: absolute;
+  top: .5rem;
+  left: .5rem;
+  padding: .2rem;
+  background-color: rgba(0, 0, 0, .6);
+  border-radius: .2rem;
+  font-size: .6rem;
+}
+
+.video__status span {
+  color: #ffffff;
+}
+
+.video__title {
+  padding: .5rem 0;
+  font-size: .75rem;
+}
+
+.video__params {
+  font-size: .6rem;
+  color: #a0a0a0;
+}
+
+.video__params>div:last-child {
+  display: flex;
+  align-items: center;
+}
+
+.video__params>div:last-child img {
+  margin: 0 .2rem;
+  width: .75rem;
+  height: .75rem;
+}
+
+.video__author {
+  display: flex;
+  align-items: center;
+}
+
+.video__author-avatar {
+  margin-right: .5rem;
+  width: 48px;
+  height: 48px;
+}
+
+.video__author-avatar img {
+  max-height: 100%;
+  border-radius: .3rem;
+}

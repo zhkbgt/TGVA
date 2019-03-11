@@ -1,0 +1,235 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width" />
+  <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+  <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+  <link rel="stylesheet" href="../../css/custom/common.css">
+  <link rel="stylesheet" href="../../css/custom/page/search-res.css">
+	<link rel="stylesheet" href="../../script/vant/index.css">
+	<script src="../../script/vue/vue.js"></script>
+	<script src="../../script/vant/vant.min.js"></script>
+</head>
+
+<body>
+  <div id="app" v-cloak>
+    <nav class="aui-tab" id="tab">
+      <div v-for="(el, i) in tabs" :key="i" class="aui-tab-item dark" :class="{'aui-active': i === active}" @click="onTabchange(i)">
+        <span>{{ el.title }}</span>
+      </div>
+    </nav>
+    <section class="tab-content">
+      <!-- <div class="tab-pane" v-show="active === 0">
+        <div v-for="(el, i) in news" :key="i" class="article__panel hairline" @click="toNewsDetail(el.id)">
+          <div class="article__thumb" v-if="el.cover">
+            <img :src="el.cover">
+          </div>
+          <div class="article__content">
+            <div class="article__title aui-ellipsis-2 dark">{{ el.title }}</div>
+            <div class="flex-between">
+              <div>{{ el.author }}</div>
+              <div class="article__params">
+                <div>{{ el.timestamp | interval-time }}</div>
+                <div v-if="el.comments !== 0">
+                  <img src="../../icon/ico_message.png">{{ el.comments | views }}
+                </div>
+                <div v-if="el.browers !== 0">
+                  <img src="../../icon/icon_view.png">{{ el.browers | views }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div v-if="!news.length && !isLoading" class="no-data">-- 暂无相关新闻 --</div>
+      </div> -->
+      <!-- 下拉刷新组件-视频列表 -->
+      <van-pull-refresh class="tab-pane" v-show="active === 0" v-model="refreshLoadingVideos" @refresh="onRefresh">
+        <div v-for="(el, i) in videos" :key="i" class="video__panel hairline" @click="toVideoDetail(el.id)">
+          <div class="video__cover">
+            <!-- <img :src="el.cover"> -->
+            <v-img :url="el.cover" err="../../image/default.png"></v-img>
+            <div class="video__cover-mask">
+              <img src="../../icon/icon_play_white.png">
+            </div>
+          </div>
+          <div class="video__content">
+            <div class="video__title dark aui-ellipsis-2">{{ el.title }}</div>
+            <div class="video__param">
+              <div>{{ el.timestamp | interval-time }}</div>
+              <div v-if="el.comments"><img src="../../icon/ico_message.png"> {{ el.comments }}</div>
+            </div>
+          </div>
+        </div>
+        <div v-if="!videos.length && !refreshLoadingVideos" class="no-data">
+          <img src="../../image/no_data.png">
+          <p>暂无相关视频</p>
+        </div>
+      </van-pull-refresh>
+      <!-- END -->
+      <!-- 下拉刷新组件-音频列表 -->
+      <van-pull-refresh class="tab-pane" v-show="active === 1" v-model="refreshLoadingAudios" @refresh="onRefresh">
+        <div v-for="(el, i) in audios" :key="i" class="audio__panel hairline">
+          <div class="audio__title">{{ el.title }}</div>
+          <div class="audio__params">
+            <div><img src="../../icon/icon_cd.png" width="28"></div>
+            <div class="audio__time">
+              {{ el.timestamp | interval-time }}
+            </div>
+          </div>
+        </div>
+        <div v-if="!audios.length && !refreshLoadingAudios" class="no-data">
+          <img src="../../image/no_data.png">
+          <p>暂无相关音频</p>
+        </div>
+      </van-pull-refresh>
+      <!-- END -->
+    </section>
+  </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script src="../../script/vue/components.js"></script>
+<script src="../../script/vue/filter.js"></script>
+<script src="../../script/ajax.js"></script>
+<script type="text/javascript">
+  function _toConsumableArray(arr) {
+    if (Array.isArray(arr)) {
+      for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+        arr2[i] = arr[i];
+      }
+      return arr2;
+    } else {
+      return Array.from(arr);
+    }
+  }
+
+  var data = {
+    active: 0,
+    tabs: [{
+      title: '视频',
+      value: 1
+    }, {
+      title: '音频',
+      value: 2
+    }],
+    keywords: '',
+    // news: [],
+    videos: [/* {
+      cover: '../../image/default.png',
+      title: '猜测出对策传动侧而发愁岑成交额可乐鸡翅看了看猜测出对策传动侧而发愁岑成交额可乐鸡翅看了看',
+      timestamp: 1541466215,
+      comments: 10
+    }, {
+      cover: '../../image/default.png',
+      title: '猜测出对策传动侧而发愁岑成交额可乐鸡翅看了看',
+      timestamp: 1541466215,
+      comments: 0
+    }, {
+      cover: '../../image/default.png',
+      title: '猜测出对策传动侧而发愁岑成交额可乐鸡翅看了看',
+      timestamp: 1541466215,
+      comments: 10
+    } */],
+    audios: [/* {
+      title: '谁偷了我的阳光彩虹小白马',
+      timestamp: 1541466215,
+    }, {
+      title: '谁偷了我的阳光彩虹小白马',
+      timestamp: 1541466215,
+    }, {
+      title: '谁偷了我的阳光彩虹小白马',
+      timestamp: 1541466215,
+    } */],
+    isLoaded: [
+      false,
+      false
+    ],    // index对应tabs各项，记录该项对应内容是否搜索过，onTabchange时使用
+    refreshLoadingVideos: false,
+    refreshLoadingAudios: false,
+  };
+
+  var vm = new Vue({
+    el: '#app',
+    data: data,
+    methods: {
+      fetchProps: function fetchProps() {
+        this.keywords = api.pageParam.keywords;
+        console.log(this.keywords);
+      },
+      fetchData: function fetchData() {
+        var type = this.tabs[this.active].value;
+
+        $ajax_post('appvasearch/search', {
+          user_id: 100000,
+          content: this.keywords,
+          type
+        }, res => {
+          this.active ? this.fnSetAudios(res) : this.fnSetVideos(res);
+        }, {
+          hideLoading: true
+        });
+      },
+      init: function init() {
+        this.fetchProps();
+
+        this.refreshLoadingVideos = true;    // 页面初始加载，默认搜索视频，开启下拉刷新效果
+        this.fetchData();
+      },
+      fnSetVideos: function fnSetVideos(res) {
+        this.refreshLoadingVideos = false;    // 关闭下拉刷新效果
+        this.isLoaded[0] = true;    // 该项已搜索，切换nav不调用搜索
+
+        this.videos = [...res.info_list];
+      },
+      fnSetAudios: function fnSetAudios(res) {
+        this.refreshLoadingAudios = false;    // 关闭下拉刷新效果
+        this.isLoaded[1] = true;    // 该项已搜索，切换nav不调用搜索
+
+        this.audios = [...res.info_list];
+      },
+      onTabchange: function onTabchange(index) {
+        this.active = index;
+        if (!this.isLoaded[this.active]) this.fetchData();
+      },
+      onRefresh: function onRefresh() {
+        this.fetchData();
+      },
+      toVideoDetail: function toVideoDetail(id) {
+				console.log(id);
+				api.openWin({
+					name: 'video_' + id + '_detail_win',
+					url: '../video_detail/video_detail_win.html',
+					bounces: false,
+					pageParam: {
+						id: id,
+						isBanner: 0
+					}
+				});
+			},
+    }
+  });
+
+  apiready = function apiready() {
+    vm.init();
+    
+    var navH = $api.offset(document.querySelector('#tab')).h;
+    var pullRefreshWrap = document.querySelectorAll('.van-pull-refresh__track');
+
+    pullRefreshWrap.forEach(el => {
+      // $api.css(el, 'min-height: calc(' + api.frameHeight + 'px - ' + navH + 'px);');
+		  $api.css(el, 'min-height: calc(667px - ' + navH + 'px);');
+    });
+  };
+
+  setTimeout(function () {
+		if (typeof api === 'undefined') {
+			api = {
+				pageParam: {}
+			};
+			apiready();
+		}
+	}, 500);
+</script>
+
+</html>

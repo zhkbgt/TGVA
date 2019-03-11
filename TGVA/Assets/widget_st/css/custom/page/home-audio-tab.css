@@ -1,0 +1,77 @@
+/* 
+ * 首页音频标签页样式
+ */
+
+.audio-list {
+  margin-top: 1rem;
+  padding: 0 .5rem;
+  background-color: #fff;
+}
+
+.audio__panel {
+  display: flex;
+}
+
+.audio__panel:first-child {
+  padding-top: 1rem;
+}
+
+.audio__panel:not(:last-child) {
+  padding-bottom: 1rem;
+}
+
+.audio__cover {
+  flex: 2;
+  /* flex-shrink: 0; */
+  position: relative;
+  margin-right: .75rem;
+  /* width: 80px; */
+  /* height: 80px; */
+}
+
+/* .audio__cover > img {
+      height: 100%;
+    } */
+.audio__cover>div {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2rem;
+  transform: translate(-50%, -50%);
+}
+
+.audio__info {
+  flex: 3;
+  display: flex;
+  flex-flow: column;
+  justify-content: space-between;
+  /* width: 100%; */
+}
+
+.audio__title {
+  line-height: .75rem;
+  font-size: .75rem;
+}
+
+.audio__author {
+  line-height: 1rem;
+  font-size: .6rem;
+  color: rgb(153, 153, 153);
+}
+
+.audio__time {
+  font-size: .6rem;
+}
+
+.slides__item-author {
+  position: absolute;
+  top: .5rem;
+  left: .5rem;
+  padding: 0 .5rem;
+  background-color: #ec4753;
+  border-top-left-radius: .5rem;
+  border-bottom-right-radius: .5rem;
+  line-height: 1rem;
+  font-size: .6rem;
+  color: #ffffff;
+}

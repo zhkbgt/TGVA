@@ -1,0 +1,163 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width" />
+	<meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+	<link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+  <link rel="stylesheet" href="../../css/custom/common.css">
+  <link rel="stylesheet" href="../../css/custom/page/lives.css">
+	<link rel="stylesheet" href="../../script/vant/index.css">
+	<script src="../../script/vue/vue.js"></script>
+	<script src="../../script/vant/vant.min.js"></script>
+</head>
+
+<body>
+  <div id="app" v-cloak>
+    <!-- 下拉刷新组件 -->
+		<van-pull-refresh v-model="refreshLoading" @refresh="onRefresh">
+      <!-- 直播列表 -->
+      <van-list class="videos list" v-model="infiniteLoading" :finished="infiniteFinished" :immediate-check="false" :offset="50" @load="onLoad">
+        <div v-for="(el, i) in videos" :key="i" class="video__panel" @click="toLiveDetail(el.id, el.status)">
+          <div class="video__cover">
+            <!-- <img :src="el.cover ? el.cover : '../../image/default.png'" :height="videoHeight"> -->
+            <v-img :url="el.cover" err="../../image/default.png" :height="videoHeight"></v-img>
+            <div class="video__cover-mask">
+              <img src="../../icon/btn_play.png">
+            </div>
+            <div class="video__status">
+              <div v-if="el.status === 0"><span style="color: rgb(3, 219, 211);">预告</span> {{ el.start_at | predict-time }}</div>
+              <div v-else-if="el.status === 1"><span>进行中</span></div>
+              <div v-else-if="el.status === 2"><span>已结束</span></div>
+              <div v-else-if="el.status === 3"><span style="color: #e7c040;">回放</span></div>
+            </div>
+            <!-- <div class="video__duration">{{ el.time_length | duration-time }}</div> -->
+          </div>
+          <!--  -->
+          <div class="video__title dark">{{ el.title }}</div>
+          <div class="video__params flex-between">
+            <div class="video__author" @click.stop="toLiveAuthor(el.author.id)">
+              <div class="video__author-avatar">
+                <img :src="el.author.avatar ? el.author.avatar : '../../image/avatar.png'">
+              </div>
+              <div class="video__author-name dark">{{ el.author.user_name }}</div>
+            </div>
+            <div><img src="../../icon/ico_export_light.png"></div>
+          </div>
+        </div>
+        <!-- 占位，优化上滑loading时的过渡 -->
+				<div style="height: 50px" v-show="!infiniteLoading && !infiniteFinished"></div>
+				<!-- END -->
+				<div v-if="infiniteFinished" class="load-more">-- 没有更多 --</div>
+      </van-list>
+      <!-- END -->
+    </van-pull-refresh>
+    <!-- END -->
+  </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script src="../../script/vue/components.js"></script>
+<script src="../../script/vue/filter.js"></script>
+<script src="../../script/ajax.js"></script>
+<script type="text/javascript">
+  var data = {
+    videos: [],
+    refreshLoading: false,
+    page: 1,
+    pageCount: 10,
+    infiniteLoading: false,
+    infiniteFinished: false,
+    videoHeight: 120,    // 视频列表，封面图默认高度
+  };
+
+  const vm = new Vue({
+    el: '#app',
+    data,
+    methods: {
+      fetchData: function fetchData() {
+        // 根据页码获取直播视频列表
+        $ajax_post('appvideo/video_live_list', {
+          page: this.page,
+          page_count: this.pageCount
+        }, res => {
+          var videos = [...res.video_lives];
+
+          // 页码为 1 时按刷新数据处理
+          if (this.page === 1) {
+            this.videos = [...videos];
+
+            this.refreshLoading = false;
+          } else {
+            videos.forEach(el => {
+              this.videos.push(el);
+            });
+
+            this.infiniteLoading = false;    // 关闭加载动画
+          }
+
+          if (res.bottom_key) this.infiniteFinished = true;    // 是否是最后一页
+        }, {
+          hideLoading: true
+        });
+      },
+      init: function init() {
+        this.refreshLoading =  true;    // 开启下拉刷新效果
+
+        this.fetchData();
+      },
+      onRefresh: function onRefresh() {
+        this.page = 1;    // 重置页码
+        this.fetchData();
+      },
+      onLoad: function onLoad() {
+        this.page++;    // 页码递增 
+        this.fetchData();
+      },
+      toLiveDetail: function toLiveDetail(id, status) {
+				console.log(id)
+				console.log(status)
+				api.openWin({
+					name: 'live_' + id + '_detail_win',
+					url: '../live_detail/live_detail_win.html',
+					bounces: false,
+					pageParam: {
+						id: id,
+						status: status,
+					}
+				});
+			},
+      toLiveAuthor: function toLiveAuthor(id) {
+        console.log(id)
+        api.openWin({
+          name: 'live_author_win',
+          url: '../live_author/live_author_win.html',
+          bounces: false,
+          pageParam: {
+            id: id,
+          }
+        });
+      },
+    },
+    mounted() {
+      this.videoHeight = document.body.clientWidth * 0.57;
+      console.log(this.videoHeight)
+    },
+  });
+
+	apiready = function () {
+    vm.init();
+		$api.css(document.querySelector('.van-pull-refresh'), 'min-height: ' + api.frameHeight + 'px');
+	};
+
+	setTimeout(function () {
+		if (typeof api === 'undefined') {
+			api = {
+				pageParam: {}
+			};
+			apiready();
+		}
+	}, 500);
+</script>
+
+</html>

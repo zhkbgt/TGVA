@@ -1,0 +1,77 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width" />
+  <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+  <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+  <link rel="stylesheet" href="../../css/custom/common.css">
+</head>
+
+<body>
+  <header id="head"></header>
+
+  <script type="text/javascript" src="../../script/api.js"></script>
+  <script src="../../script/ajax.js"></script>
+  <script type="text/javascript">
+    apiready = function apiready() {
+      api.parseTapmode();
+
+      var header = document.querySelector('#head');
+
+      $api.fixStatusBar(header);
+
+      var headerH = $api.offset(header).h;
+      var id = api.pageParam.id;
+
+      // 获取视频作者信息和该作者视频列表
+      $ajax_post('appvideo/author_detail', {
+        user_id: 100000,
+        author_id: id,
+      }, res1 => {
+        var author = {...res1};
+
+        $ajax_post('appvideo/author_video_by_page', {
+          author_id: id,
+          page: 1,
+          page_count: 10,
+        }, res2 => {
+          var videos = {...res2};
+
+          // 渲染页面内容部分
+          api.openFrame({
+            name: 'video_author_frm',
+            url: './video_author_frm.html',
+            rect: {
+              w: 'auto',
+              h: 'auto'
+            },
+            pageParam: {
+              headerH: headerH,
+              author,
+              videos
+            }
+          });
+
+          // 渲染页面头部
+          api.openFrame({
+            name: 'video_author_head_frm',
+            url: './video_author_head_frm.html',
+            bounces: false,
+            rect: {
+              w: 'auto',
+              h: 45 + headerH
+            },
+            pageParam: {
+              headerH: headerH,
+              author
+            }
+          });
+        });
+      });
+    };
+  </script>
+</body>
+
+</html>

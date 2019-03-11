@@ -1,0 +1,183 @@
+/*
+ * 直播详情页面样式 
+ */
+
+.aui-bar-nav {
+  background-color: transparent;
+}
+
+#app {
+  position: relative;
+}
+
+.info {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+  overflow-y: auto;
+}
+
+.info__wrap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  filter: blur(15px);
+  z-index: -2;
+}
+
+.info__wrap::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, .45);
+  z-index: -1;
+}
+
+.info__section:nth-child(2) {
+  background-color: rgba(0, 0, 0, .3);
+}
+
+.info__section .cell {
+  padding: .7rem .75rem;
+  background-color: transparent;
+  color: #fff;
+}
+
+.info__section .cell__title {
+  font-size: .8rem;
+  font-weight: 700;
+}
+
+.author {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: .75rem;
+  width: 100%;
+}
+
+.author-detail {
+  display: flex;
+}
+
+.author-nickname {
+  font-size: .65rem;
+  color: #ffffff;
+}
+
+.author-simple {
+  font-size: .6rem;
+}
+
+.author-avatar {
+  margin-right: .5rem;
+  width: 36px;
+  height: 36px;
+}
+
+.author-avatar img {
+  border-radius: .2rem;
+  max-height: 100%;
+}
+
+.author-btn {
+  width: 2rem;
+}
+
+.aui-tab {
+  background-color: transparent;
+  border-bottom: 1px solid #333333;
+}
+
+.aui-tab .aui-tab-item {
+  background-color: transparent;
+}
+
+.aui-tab .aui-tab-item span {
+  display: inline-block;
+  position: relative;
+  color: #ffffff;
+}
+
+.aui-tab .aui-tab-item span::after {
+  content: '';
+  display: block;
+  position: absolute;
+  bottom: 4px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: transparent;
+}
+
+.aui-tab .aui-tab-item.aui-active {
+  color: #ec4753;
+  border-bottom: none;
+}
+
+.aui-tab .aui-tab-item.aui-active span::after {
+  background-color: #ec4753;
+}
+
+.tab-pane {
+  padding: .75rem;
+  overflow: auto;
+}
+
+.live__cover {
+  position: relative;
+}
+
+.live__cover-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.live__cover-mask img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.simple {
+  font-size: .65rem;
+  color: #ffffff;
+}
+
+.action-bar {
+  background-color: #313131;
+}
+
+.comment-input__wrap {
+  background: rgb(83, 83, 83);
+  color: #fff;
+}
+
+.comment-input__wrap:active {
+  background: rgb(136, 136, 136);
+}
+
+.comment__nickname,
+.comment__desc,
+.comment__reply {
+  color: #fff;
+}
+
+.comment__desc:active,
+.comment-ans__content:active {
+  background-color: rgba(255, 255, 255, .15);
+}

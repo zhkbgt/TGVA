@@ -1,0 +1,199 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width" />
+  <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+  <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+  <link rel="stylesheet" href="../../css/custom/common.css">
+  <link rel="stylesheet" href="../../script/vant/index.css">
+  <script src="../../script/vue/vue.js"></script>
+  <script src="../../script/vant/vant.min.js"></script>
+  <style>
+    body {
+      background: transparent;
+    }
+    .aui-mask {
+      -webkit-transition: -webkit-transform .3s;
+      transition: transform .3s;
+      -webkit-transform: translate3d(0,100%,0);
+      transform: translate3d(0,100%,0);
+    }
+    .audios {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background-color: inherit;
+      z-index: 999;
+      opacity: 0;
+      -webkit-transition: opacity .3s,-webkit-transform .3s;
+      transition: opacity .3s,transform .3s;
+      -webkit-transform: translate3d(0,100%,0);
+      transform: translate3d(0,100%,0);
+    }
+    .audios {
+      background-color: #ffffff;
+      border-top-left-radius: .5rem;
+      border-top-right-radius: .5rem;
+    }
+    .audios-head, .audios-foot {
+      text-align: center;
+      line-height: 2.25rem;
+      font-size: .65rem;
+    }
+    .audios-head {
+      border-bottom: 1px solid #f2f2f2;
+      line-height: 2.5rem;
+      font-size: .75rem;
+    }
+    .audios-foot:active {
+      background-color: #f0f0f0;
+    }
+    .audios-list {
+      padding: 0 .75rem;
+      max-height: 13.5rem;
+      overflow: auto;
+    }
+    .audios-item {
+      position: relative;
+      padding: .35rem 0;
+    }
+    .audios-item:active {
+      background-color: #f5f5f5;
+    }
+    .audios-item__title {
+      line-height: 1.5rem;
+      font-size: .7rem;
+      font-weight: 700;
+    }
+    .audios-item__duration {
+      display: flex;
+      align-items: center;
+      font-size: .6rem;
+      color: #999999;
+    }
+    .audios-item__duration img {
+      margin-right: .4rem;
+      width: .7rem;
+    }
+    .audios__loading {
+      display: flex;
+      justify-content: center;
+      padding: .5rem 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="aui-mask aui-mask-in">
+  </div>
+  <div id="app" class="aui-content audios" v-cloak>
+    <header class="audios-head dark">全部选集</header>
+    <section class="audios-list">
+      <div class="audios__loading" v-if="!isLoaded"><van-loading type="spinner" /></div>
+      <!-- 上滑加载列表 -->
+      <van-list class="list" v-model="infiniteLoading" :finished="infiniteFinished" :immediate-check="false" :offset="60" @load="onLoad">
+        <div v-for="(el, i) in list" :key="i" class="audios-item flex-between hairline" @click="fnSwitchAudio(el.id)">
+          <div class="audios-item__title gray">{{ el.title }}</div>
+          <div class="audios-item__duration"><img src="../../icon/icon_time.png"> {{ el.time_length | duration-time }}</div>
+        </div>
+        <!-- 占位，优化上滑loading时的过渡 -->
+        <div style="height: 50px" v-show="!infiniteLoading && !infiniteFinished && isLoaded"></div>
+        <!-- END -->
+        <div v-if="list.length && infiniteFinished" class="load-more">-- 没有更多了 --</div>
+      </van-list>
+      <!-- END -->
+    </section>
+    <footer class="audios-foot dark" onclick="clickOutside()">关闭</footer>
+  </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script src="../../script/vue/filter.js"></script>
+<script src="../../script/ajax.js"></script>
+<script type="text/javascript">
+  var data = {
+    authorId: null,
+    list: [],
+    page: 1,
+    pageCount: 10,
+    infiniteFinished: false,
+    infiniteLoading: false,
+    isLoaded: false,    // 初始加载标识位
+  };
+
+  const vm = new Vue({
+    el: '#app',
+    data,
+    methods: {
+      fetchProps: function fetchProps() {
+        this.authorId = api.pageParam.id;
+      },
+      fetchData: function fetchData() {
+        $ajax_post('appaudio/author_audio_list', {
+          author_id: this.authorId,
+          page: this.page,
+          page_count: this.pageCount,
+        }, res => {
+          this.list.push(...res.audio_list);
+
+          if (this.page === 1) this.isLoaded = true;
+          else this.infiniteLoading = false;
+
+          if (res.bottom_key) this.infiniteFinished = true;
+        }, {
+          hideLoading: true
+        });
+      },
+      init: function init() {
+        this.fetchProps();
+        this.fetchData();
+      },
+      onLoad: function onLoad() {
+        this.page++;
+        this.fetchData();
+      },
+      fnSwitchAudio: function fnSwitchAudio(id) {
+        // 切换音频
+        api.execScript({
+          script:'switchAudio(' + id + ');'
+        });
+      },
+    },
+  });
+
+  apiready = function () {
+    var audiosDom = document.querySelector('.audios');
+    var mask = document.querySelector('.aui-mask');
+
+    $api.css(audiosDom, 'opacity: 1;transform: translate3d(0,0,0);-webkit-transform: translate3d(0,0,0);');
+    $api.css(mask, 'transform: translate3d(0,0,0);-webkit-transform: translate3d(0,0,0);');
+    mask.onclick = clickOutside;
+    
+    vm.init();
+  };
+
+  function clickOutside() {
+    var audiosDom = document.querySelector('.audios'),
+      mask = document.querySelector('.aui-mask');
+
+    $api.css(audiosDom, 'opacity: 0;transform: translate3d(0,100%,0);-webkit-transform: translate3d(0,100%,0);');
+    $api.css(mask, 'transform: translate3d(0,100%,0);-webkit-transform: translate3d(0,100%,0);');
+
+    setTimeout(function () {
+      api.closeFrame({});
+    }, 300);
+  }
+
+  setTimeout(function () {
+    if (typeof api === 'undefined') {
+      api = {
+        pageParam: {}
+      };
+      apiready();
+    }
+  }, 500);
+</script>
+
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width" />
+  <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+  <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+  <link rel="stylesheet" href="../../css/custom/common.css">
+  <!-- <link rel="stylesheet" href="../../css/swiper/swiper.min.css"> -->
+  <link rel="stylesheet" href="../../css/swiper/@3.4.2/swiper.min.css">
+	<link rel="stylesheet" href="../../script/vant/index.css">
+  <link rel="stylesheet" href="../../css/custom/components/home-slides.css">
+  <link rel="stylesheet" href="../../css/custom/page/home-audio-tab.css">
+	<script src="../../script/vue/vue.js"></script>
+	<script src="../../script/vant/vant.min.js"></script>
+</head>
+
+<body>
+  <div id="app" v-cloak>
+    <section class="slides">
+      <div class="slides__wrap">
+        <img :src="activeSlide" id="src_img">
+        <!-- <div class="slides__wrap-mask">
+          <canvas id="blur_img"></canvas>
+        </div> -->
+      </div>
+      <div class="swiper-container slides__list">
+        <div class="swiper-wrapper">
+          <div v-for="(el, i) in slides" :key="i" class="swiper-slide slides__item" @click="toAudioAuthor(el.id)">
+            <div class="slides__item-img">
+              <!-- <img :src="el"> -->
+              <div class="slides__item-author">{{ el.flag }}</div>
+              <v-img :url="el.banner_image" err="../../image/default.png"></v-img>
+            </div>
+            <div class="slides__item-title">{{ el.self_introduce }}</div>
+          </div>
+        </div>
+        <!-- 如果需要分页器 -->
+        <div class="swiper-pagination"></div>
+      </div>
+    </section>
+		<van-list class="audio-list list" v-model="infiniteLoading" :finished="infiniteFinished" :immediate-check="false" :offset="50" @load="onLoad">
+      <div v-for="(el, i) in list" :key="i" class="audio__panel" @click="toAudioDetail(el.id)">
+        <div class="audio__cover">
+          <!-- <img :src="item.thumb"> -->
+          <v-img :url="el.cover" err="../../image/default.png"></v-img>
+          <div>
+            <img src="../../icon/btn_play.png">
+          </div>
+        </div>
+        <div class="audio__info">
+          <div class="audio__title dark aui-ellipsis-2">{{ el.title }}</div>
+          <div class="audio__author">{{ el.from_author }}</div>
+          <div class="audio__time light">{{ el.create_at | interval-time }}</div>
+        </div>
+      </div>
+			<!-- 占位，优化上滑loading时的过渡 -->
+			<div style="height: 50px" v-show="!infiniteLoading && !infiniteFinished"></div>
+			<!-- END -->
+			<div v-if="infiniteFinished" class="load-more">-- 没有更多 --</div>
+    </van-list>
+  </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script src="../../script/vue/components.js"></script>
+<script src="../../script/vue/filter.js"></script>
+<script src="../../script/ajax.js"></script>
+<script src="../../script/swiper/@3.4.2/swiper.js"></script>
+<script type="text/javascript">
+  var data = {
+    // list: [{"id":1,"title":"0","from_author":"0","audio_url":"http://www.ytmp3.cn/down/55078.mp3","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7","from_url":"https://www.jiemian.com/video/lists/index_1.html","create_at":0,"time_length":292},{"id":2,"title":"0","from_author":"0","audio_url":"http://www.ytmp3.cn/down/55077.mp3","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7","from_url":"https://www.jiemian.com/video/lists/index_1.html","create_at":0,"time_length":172},{"id":3,"title":"0","from_author":"0","audio_url":"http://www.ytmp3.cn/down/55077.mp3","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7","from_url":"https://www.jiemian.com/video/lists/index_1.html","create_at":0,"time_length":233},{"id":4,"title":"0","from_author":"0","audio_url":"http://www.ytmp3.cn/down/55076.mp3","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7","from_url":"https://www.jiemian.com/video/lists/index_1.html","create_at":0,"time_length":399},{"id":5,"title":"0","from_author":"0","audio_url":"http://www.ytmp3.cn/down/55077.mp3","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7","from_url":"https://www.jiemian.com/video/lists/index_1.html","create_at":0,"time_length":329},{"id":6,"title":"0","from_author":"0","audio_url":"http://www.ytmp3.cn/down/55076.mp3","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7","from_url":"https://www.jiemian.com/video/lists/index_1.html","create_at":0,"time_length":303},{"id":7,"title":"0","from_author":"0","audio_url":"http://www.ytmp3.cn/down/55074.mp3","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7","from_url":"https://www.jiemian.com/video/lists/index_1.html","create_at":0,"time_length":301},{"id":8,"title":"0","from_author":"0","audio_url":"http://www.ytmp3.cn/down/55074.mp3","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7","from_url":"https://www.jiemian.com/video/lists/index_1.html","create_at":0,"time_length":306},{"id":9,"title":"0","from_author":"0","audio_url":"http://www.ytmp3.cn/down/55071.mp3","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7","from_url":"https://www.jiemian.com/video/lists/index_1.html","create_at":0,"time_length":289},{"id":10,"title":"0","from_author":"0","audio_url":"http://www.ytmp3.cn/down/55076.mp3","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7","from_url":"https://www.jiemian.com/video/lists/index_1.html","create_at":0,"time_length":152}],
+    list: [],
+    isPlaying: false,
+    slides: [],
+    slidesTitle: [],
+    activeSlide: null,
+    page: 1,
+    pageCount: 10,
+    infiniteLoading: false,
+    infiniteFinished: false,
+  };
+
+  var vm = new Vue({
+    el: '#app',
+    data: data,
+    methods: {
+      fetchData: function fetchData() {
+        // 获取轮播图信息
+        $ajax_post('appaudio/audio_author_banner', {}, res => {
+          this.slides = [...res.banner_list];
+          this.activeSlide = res.banner_list[0].banner_image;
+
+          setTimeout(() => {
+            this.initSwiper();
+          }, 10);
+
+          this.fetchAudios();
+        }, {
+          hideLoading: true
+        });
+      },
+      fetchAudios: function fetchAudios() {
+        // 按页码获取音频列表
+        $ajax_post('appaudio/audio_list', {
+          page: this.page,
+          page_count: this.pageCount
+        }, res => {
+          this.list.push(...res.audio_list);
+
+          this.infiniteLoading = false;
+          if (res.bottom_key) this.infiniteFinished = true;            
+        }, {
+          hideLoading: true
+        });
+      },
+      initSwiper: function initSwiper() {
+        var _this = this;
+        mySwiper = new Swiper('.swiper-container', {
+          // autoplay: 3000,
+          autoplayDisableOnInteraction: false,
+          roundLengths: true,
+          slidesPerView: 'auto',
+          centeredSlides: true,
+          loop: true, // 循环模式选项
+          pagination: '.swiper-pagination',
+          onSlideChangeEnd: function onSlideChangeEnd(swiper) {
+            var active = swiper.activeIndex;
+            var src = '';
+
+            if (swiper.imagesToLoad[active]) {
+              src = swiper.imagesToLoad[active].src;
+              _this.activeSlide = src;
+            }
+          }
+        });
+      },
+      init: function init() {
+        this.fetchData();
+        // this.handleImgBlur();
+      },
+      handleScroll: function handleScroll() {
+        var scrolly = document.scrollingElement.scrollTop;
+
+        // console.log(scrolly);
+        api.execScript({
+          frameName: 'video_audio_head_frm',
+          script: 'vm.scrollingCallback(' + scrolly + ');'
+        });
+      },
+      onLoad: function onLoad() {
+        this.page++;
+        this.fetchAudios();
+      },
+      onPlay: function onPlay(i, j) {
+        var temp = this.list[i].sub[j].is_play;
+        this.fuToggleAllPlayBtn();
+        this.list[i].sub[j].is_play = !temp;
+      },
+      fuToggleAllPlayBtn: function fuToggleAllPlayBtn() {
+        this.list.forEach(function (el) {
+          el.sub.forEach(function (item) {
+            item.is_play = false;
+          });
+        });
+      },
+      toAudioDetail: function toAudioDetail(id) {
+        // console.log(id)
+        api.openWin({
+          name: 'audio_detail_win',
+          url: '../audio_detail/audio_detail_win.html',
+          bounces: false,
+          pageParam: {
+            id,
+            from: api.winName,
+          }
+        });
+      },
+      toAudioAuthor: function toAudioAuthor(id) {
+        console.log(id)
+        api.openWin({
+          name: 'audio_author_win',
+          url: '../../html/audio_author/audio_author_win.html',
+          bounces: false,
+          pageParam: {
+            id
+          },
+        });
+      },
+    },
+    mounted: function mounted() {
+      document.addEventListener('scroll', this.handleScroll);
+    }
+  });
+
+  apiready = function apiready() {
+    vm.init();
+
+    api.parseTapmode();
+
+    $api.css(document.querySelector('.slides'), 'padding-top: ' + (108 + api.pageParam.headerH) + 'px;');
+  };
+
+  setTimeout(function () {
+		if (typeof api === 'undefined') {
+			api = {
+				pageParam: {}
+			};
+			apiready();
+		}
+	}, 500);
+</script>
+
+</html>

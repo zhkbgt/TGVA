@@ -1,0 +1,576 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width" />
+  <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+  <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+  <link rel="stylesheet" href="../../script/vant/index.css">
+  <link rel="stylesheet" href="../../css/custom/common.css">
+  <link rel="stylesheet" href="../../css/custom/components/comments.css">
+  <link rel="stylesheet" href="../../css/custom/components/foot-action.css">
+  <link rel="stylesheet" href="../../css/custom/page/video-detail.css">
+  <script src="../../script/vue/vue.js"></script>
+  <script src="../../script/vant/vant.min.js"></script>
+</head>
+
+<body>
+  <div id="app" v-cloak>
+    <header></header>
+    <div class="info__wrap" :style="{ backgroundImage: 'url(' + video.cover + ')' }"></div>
+    <!-- 播放器占位 -->
+    <div class="video-player"></div>
+    <section class="info">
+      <div class="info__content">
+        <div class="info__section">
+          <div class="intro">
+            <div class="intro__title">{{ video.title }}</div>
+            <div class="intro__desc">{{ video.simple }}</div>
+            <div class="intro__author">
+              <div class="intro__author-detail">
+                <div class="intro__author-avatar" @click="toVideoAuthor(author.id)">
+                  <img :src="author.avatar ? author.avatar : '../../image/avatar.png'">
+                </div>
+                <div>
+                  <div class="intro__author-nickname">{{ author.user_name }}</div>
+                  <div class="intro__author-extra">
+                    <img src="../../icon/ico_play_white.png">{{ author.play_times }}
+                    <img src="../../icon/ico_ji.png">{{ author.videos_count }}集
+                  </div>
+                </div>
+              </div>
+              <div class="intro__author-btn" @click="fnFollow">
+                <img :src="video.is_follow_author ? '../../icon/btn_followed_white.png' : '../../icon/btn_follow_white.png'">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="info__section">
+          <div class="cell" id="comments">
+            <div class="cell__title">精彩评论</div>
+          </div>
+          <van-list class="comments list" :class="{'empty': !comments.length}" v-model="infiniteLoading" :offset="60" :finished="infiniteFinished" :immediate-check="false" @load="onLoad">
+            <div v-for="(el, i) in comments" :key="i" class="comment__panel">
+              <div class="comment__info">
+                <div class="comment__avatar">
+                  <img :src="el.head_pic ? el.head_pic : '../../image/avatar.png'">
+                </div>
+                <div>
+                  <div class="comment__nickname">{{ el.user_nickname }}
+                    <div class="comment__like" @click="fnCommentLike(i)">
+                      <span v-if="el.like_number">{{ el.like_number }}</span>
+                      <div><img :src="el.is_like ? '../../icon/ico_like_red.png' : '../../icon/ico_thumbsup_white.png'"width="18"></div>
+                    </div>
+                  </div>
+                  <div class="comment__desc" @click="fnAnswerComment(i, el.id)">{{ el.comment }}</div>
+                  <div class="comment__time light">{{ el.timestamp | interval-time }}</div>
+                </div>
+              </div>
+              <div class="comment__reply" v-if="el.answer_list.length">
+                <div v-for="(ans, j) in el.answer_list" :key="j" class="comment-ans__panel hairline">
+                  <div class="comment-ans__user" v-if="ans.user_nickname === ans.listen_nickname">{{ ans.user_nickname }}:</div>
+                  <div class="comment-ans__user" v-else>{{ ans.user_nickname }}<span>回复</span>{{ ans.listen_nickname }}:</div>
+                  <div class="comment-ans__content" @click="fnAnswerComment(i, el.id, ans.user_id)">{{ ans.answer }}</div>
+                </div>
+              </div>
+            </div>
+            <!-- 占位，优化上滑loading时的过渡 -->
+            <div style="height: 50px" v-show="!infiniteLoading && !infiniteFinished"></div>
+            <!-- END -->
+            <div class="light" style="font-size: .65rem;" v-if="!comments.length && infiniteFinished">
+              <img src="../../icon/no_comments.png" width="180">我们需要您的神评论
+            </div>
+            <div v-if="comments.length && infiniteFinished" class="load-more">-- 没有更多了 --</div>
+          </van-list>
+        </div>
+      </div>
+    </section>
+    <footer class="foot-action">
+      <div class="action-bar">
+        <div class="action-bar__item comment-input">
+          <div class="comment-input__wrap" @click="openCommentInputFrame">随便说点什么吧...</div>
+        </div>
+        <div class="action-bar__item">
+          <div class="action-bar__icon">
+            <a href="#comments"><img src="../../icon/ico_message_white.png"></a>
+          </div>
+          <div class="aui-badge" v-show="video.comments">{{ video.comments }}</div>
+        </div>
+        <div class="action-bar__item">
+          <div class="action-bar__icon" :class="{'toggling': iconToggle.like}" @click="fnLike">
+            <img :src="video.is_like ? '../../icon/ico_like_red.png' : '../../icon/ico_thumbsup_white.png'">
+          </div>
+          <div class="aui-badge" v-show="video.star">{{ video.star }}</div>
+        </div>
+        <div class="action-bar__item">
+          <div class="action-bar__icon"><img src="../../icon/ico_export_white.png"></div>
+        </div>
+        <div class="action-bar__item">
+          <div class="action-bar__icon" :class="{'toggling': iconToggle.collect}" @click="fnCollect">
+            <img :src="video.is_collect ? '../../icon/ico_star_red.png' : '../../icon/ico_star_white.png'">
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script src="../../script/vue/filter.js"></script>
+<script src="../../script/ajax.js"></script>
+<script type="text/javascript">
+  var _extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+    return target;
+  };
+
+  var data = {
+    info: {},
+    author: {},
+    comments: [],
+    video: {},
+    isPlaying: false,
+    page: 1,
+    pageCount: 10,
+    infiniteLoading: false,
+    infiniteFinished: false,
+    iconToggle: {
+      like: false,
+      collect: false
+    } // 标志位, 控制点赞、收藏 icon的切换效果
+  };
+  var playModule, header_h;
+
+  var vm = new Vue({
+    el: '#app',
+    data: data,
+    methods: {
+      fetchProps: function fetchProps() {
+        this.video = _extends({}, api.pageParam.video);
+        this.author = _extends({}, api.pageParam.video.author);
+        this.comments = [...api.pageParam.comments.comment_list];
+        this.infiniteFinished = Boolean(api.pageParam.comments.bottom_key);
+      },
+      /* fetchData: function fetchData() {
+        var _this2 = this;
+
+        var data = {
+            title: '后半生，致自己（透彻感悟）',
+            simple: '风的季节初见初恋才能带你飞，才能打飞机纯牛奶曾多次地方能差点看成吗吃，么，动沉迷成绩单寄出。',
+            cover: '../../image/thumb.jpg',
+            duration: 3600,
+            current: 0,
+            comments: 1,
+            like_num: 12,
+            is_like: 0,
+            is_collect: 0
+          },
+          data2 = {
+            avatar: '../../image/avatar.png',
+            user_name: '白菜说世界',
+            desc: '让眼睛休息一会儿，每天听5分钟，把该知道的新闻送到您的耳边。',
+            visit: 2504,
+            num: 25,
+            isFollowed: false
+          },
+          arr2 = [{
+            avatar: '../../image/avatar.png',
+            nickname: '茶多酚cdch',
+            comment: '复健科的九分裤进出口搭街坊考虑到积分科技地产kin侧附加费',
+            time: 1540283072,
+            is_like: true
+          }];
+
+        this.info = _extends({}, data);
+        // this.author = { ...data2
+        // };
+        arr2.forEach(function (el) {
+          _this2.comments.push(el);
+        });
+      }, */
+      initPlayer: function initPlayer() {
+        var _this = this;
+        playModule = api.require('playModule');
+
+        playModule.init({
+          // background: 'http://192.168.0.108:8881/image/thumb2.jpg',
+          background: _this.video.cover,
+          isShowBottomBtn: true,
+          isMultiWindow: true,
+        });
+
+        playModule.play({
+          rect: {
+            x: 0,
+            y: header_h,
+            w: api.winWidth,
+            h: api.winWidth * 0.65
+          },
+          fixedOn: api.frameName,
+          fixed: true,
+          title: '',
+          // url: 'rtmp://10454.liveplay.myqcloud.com/live/yspd',
+          url: _this.video.video_url,
+          defaultBtn: true,
+          enableFull: false,
+          enableFullAutoClose: false,
+          isTopView: true,
+          isFullBtn: true,
+          isBackBtn: true,
+          fullscreenMode: 'LANDSCAPE',
+          isShowTimeLable: true,
+          isAutoPlay: true,
+        }, function (ret, err) {
+          if (ret) {
+            console.log(JSON.stringify(ret));
+          } else {
+            console.log(JSON.stringify(err));
+          }
+        });
+
+        playModule.addEventListener({
+          name: 'backBtn'
+        }, function (ret, err) {
+          console.log('窗口back');
+          _this.fnCleanPlayer();
+        });
+
+        console.log(api.systemType)
+        if (api.systemType === 'ios') {
+          api.execScript({
+            script: 'forbidSlidBackForIOS();'
+          });
+        } else if (api.systemType === 'android') {
+          api.execScript({
+            script: 'addEventListenerKeyback();'
+          });
+        }
+                   
+        api.execScript({
+          script: 'addEventListenerMenu();'
+        });
+      },
+      initLayout: function initLayout() {
+        var screenWidth = window.screen.width,
+          screenHeight = window.screen.height;
+        $api.css(document.querySelector('#app'), 'width: ' + screenWidth + 'px;height: ' + screenHeight + 'px');
+
+        $api.fixStatusBar(document.querySelector('header'));
+        header_h = $api.offset(document.querySelector('header')).h;
+
+        // $api.css(document.querySelector('header'), 'padding-top: 20px;');
+        // header_h = 20;
+
+        // $api.css(document.querySelector('.video-player'), 'width: 100%;height: ' + screenWidth * 0.65 + 'px');
+
+        $api.css(document.querySelector('.info'), 'top: ' + (screenWidth * 0.65 + header_h) + 'px;height: ' + (
+          screenHeight - screenWidth * 0.65 - header_h - 60) + 'px;');
+
+        var introDomHeight = $api.offset(document.querySelectorAll('.info__section')[0]).h;
+        $api.css(document.querySelectorAll('.info__section')[1], 'min-height: ' + (screenHeight - screenWidth *
+          0.65 - header_h - 60 - introDomHeight) + 'px');
+      },
+      init: function init() {
+        var _this3 = this;
+
+        this.fetchProps();
+        // this.fetchData();
+        setTimeout(function () {
+          _this3.initLayout();
+          _this3.initPlayer();
+        }, 100);
+      },
+      onLoad: function onLoad() {
+        // 根据分页获取视频评论列表
+        this.page++;
+
+        $ajax_post('appcomment/comment_list', {
+          user_id: 100000,
+          id: this.video.id,
+          page: this.page,
+          page_count: this.pageCount,
+          type: 1
+        }, res => {
+          res.comment_list.forEach(el => {
+            this.comments.push(el);
+          });
+
+          this.infiniteLoading = false; // 控制加载结束
+          if (res.bottom_key) this.infiniteFinished = true; // 已是最后一页
+        }, {
+          hideLoading: true
+        });
+      },
+      fnIsPlayerFull: function fnIsPlayerFull() {
+        var _this = this;
+        playModule.isFullScreen(function (ret, err) {
+          // 是否是全屏状态
+          if (ret.status) {
+            playModule.unfull(function (ret, err) {}); // 退出全屏
+          } else {
+            _this.fnCleanPlayer();
+          }
+        });
+      },
+      fnPausePlayer: function fnPausePlayer() {
+        playModule.pause(function(ret, err) {
+          console.log('播放器暂停')
+          console.log(JSON.stringify(ret));
+        });
+      },
+      fnCleanPlayer: function fnCleanPlayer() {
+        // 模块需要调用cleanPlayers方法，再关闭页面，否则会在后台驻留播放
+        playModule.cleanPlayers(function (ret, err) {
+          console.log('播放器清理')
+          console.log(JSON.stringify(ret))
+          api.closeWin(); // 关闭window
+        });
+      },
+      fnFollow: function fnFollow() {
+        this.video.is_follow_author ? this.onCancelFollow() : this.onFollow();
+      },
+      onFollow: function onFollow() {
+        $ajax_post('appvideo/follow_video_author', {
+          author_id: this.video.author.id,
+          user_id: 100000
+        }, () => {
+          this.video.is_follow_author = 1;
+        }, {
+          hideLoading: true
+        });
+      },
+      onCancelFollow: function onCancelFollow() {
+        $ajax_post('appvideo/cancle_follow_video_author', {
+          author_id: this.video.author.id,
+          user_id: 100000
+        }, () => {
+          this.video.is_follow_author = 0;
+        }, {
+          hideLoading: true
+        });
+      },
+      fnLike: function fnLike() {
+        this.video.is_like ? this.onCancelLike() : this.onLike();
+      },
+      onLike: function onLike() {
+        var _this5 = this;
+
+        $ajax_post('applike/like', {
+          user_id: 100000,
+          id: this.video.id,
+          type: 1
+        }, function () {
+          _this5.video.is_like = true;
+          _this5.video.star++;
+
+          // 点赞时icon切换效果控制
+          _this5.iconToggle.like = true;
+          setTimeout(function () {
+            _this5.iconToggle.like = false;
+          }, 150);
+
+        }, {
+          hideLoading: true
+        });
+      },
+      onCancelLike: function onCancelLike() {
+        var _this6 = this;
+
+        $ajax_post('applike/cancle_like', {
+          user_id: 100000,
+          id: this.video.id,
+          type: 1
+        }, function () {
+          _this6.video.is_like = false;
+          _this6.video.star--;
+        }, {
+          hideLoading: true
+        });
+      },
+      fnCollect: function fnCollect() {
+        this.video.is_collect ? this.onCancelCollect() : this.onCollect();
+      },
+      onCollect: function onCollect() {
+        var _this7 = this;
+
+        $ajax_post('appcollect/collect', {
+          user_id: 100000,
+          id: this.video.id,
+          type: 1
+        }, function (res) {
+          _this7.video.is_collect = 1;
+          api.toast({
+            msg: res,
+            duration: 1500,
+            location: 'bottom'
+          });
+
+          // 收藏时icon切换效果控制
+          _this7.iconToggle.collect = true;
+          setTimeout(function () {
+            _this7.iconToggle.collect = false;
+          }, 150);
+        }, {
+          hideLoading: true
+        });
+      },
+      onCancelCollect: function onCancelCollect() {
+        var _this8 = this;
+
+        $ajax_post('appcollect/cancle_collect', {
+          user_id: 100000,
+          id: this.video.id,
+          type: 1
+        }, function (res) {
+          _this8.video.is_collect = 0;
+          api.toast({
+            msg: res,
+            duration: 1500,
+            location: 'bottom'
+          });
+        }, {
+          hideLoading: true
+        });
+      },
+      fnCommentLike: function fnCommentLike(i) {
+        this.comments[i].is_like ? this.onCancelCommentLike(i) : this.onCommentLike(i);
+      },
+      onCommentLike: function onCommentLike(i) {
+        $ajax_post('appcomment/comment_like', {
+          user_id: 100000,
+          comment_id: this.comments[i].id
+        }, () => {
+          this.comments[i].is_like = 1;
+          this.comments[i].like_number++;
+        }, {
+          hideLoading: true
+        });
+      },
+      onCancelCommentLike: function onCancelCommentLike(i) {
+        $ajax_post('appcomment/cancle_comment_like', {
+          user_id: 100000,
+          comment_id: this.comments[i].id
+        }, () => {
+          this.comments[i].is_like = 0;
+          this.comments[i].like_number--;
+        }, {
+          hideLoading: true
+        });
+      },
+      fnAnswerComment(index, cId, lId = 0) {
+        console.log(index)
+        console.log(cId)
+        console.log(lId)
+        var _this = this;
+        api.actionSheet({
+          cancelTitle: '取消',
+          buttons: ['回复']
+        }, function (ret, err) {
+          if (ret.buttonIndex == 1) {
+            // 唤起输入框frame
+            api.openFrame({
+              name: 'comment_input_frm',
+              url: '../common/comment_input_frm.html',
+              rect: {
+                x: 0,
+                y: 0,
+                w: 'auto',
+                h: 'auto'
+              },
+              pageParam: {
+                url: 'appcomment/answer_comment',
+                params: {
+                  news_id: _this.video.id,
+                  user_id: 100000,
+                  comment_id: cId,
+                  listen_id: lId,
+                  type: 1
+                },
+                from: api.frameName,
+                callback: 'fnReplyCommentCallback',
+                callbackParams: {
+                  index
+                }
+              }
+            });
+          }
+        });
+      },
+      fnReplyCommentCallback(el, params) {
+        console.log(JSON.stringify(el))
+        console.log(JSON.stringify(params))
+        this.comments[params.index].answer_list.push(el);
+        this.video.comments++;
+      },
+      fnSubmitCommentCallback: function fnSubmitCommentCallback(el) {
+        console.log(JSON.stringify(el));
+        this.comments.unshift(el);
+        this.video.comments++;
+      },
+      openShareFrm: function openShareFrm() {
+        api.openFrame({
+          name: 'share_box_frm',
+          url: '../common/share_box_frm.html',
+          rect: {
+            x: 0,
+            y: 0,
+            w: 'auto',
+            h: 'auto'
+          },
+          animation: {
+            type: 'fade'
+          }
+        });
+      },
+      openCommentInputFrame: function openCommentInputFrame() {
+        api.openFrame({
+          name: 'comment_input_frm',
+          url: '../common/comment_input_frm.html',
+          rect: {
+            x: 0,
+            y: 0,
+            w: 'auto',
+            h: 'auto'
+          },
+          pageParam: {
+            url: 'appcomment/comment',
+            params: {
+              id: this.video.id,
+              user_id: 100000,
+              type: 1
+            },
+            from: api.frameName,
+            callback: 'fnSubmitCommentCallback',
+            callbackParams: {}
+          }
+        });
+      },
+      toVideoAuthor: function toVideoAuthor(id) {
+        console.log(id)
+        this.fnPausePlayer();    // 跳转前先暂停播放
+
+        api.openWin({
+          name: 'video_author_win',
+          url: '../video_author/video_author_win.html',
+          bounces: false,
+          pageParam: {
+            id
+          }
+        });
+      }
+    }
+  });
+
+  apiready = function apiready() {
+    vm.init();
+  };
+</script>
+
+</html>

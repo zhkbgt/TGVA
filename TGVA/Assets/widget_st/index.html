@@ -1,0 +1,226 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width" />
+	<meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+	<link rel="stylesheet" type="text/css" href="./css/aui/aui.css" />
+	<link rel="stylesheet" href="./css/common.css">
+</head>
+
+<body>
+	<header id="head"></header>
+</body>
+<script type="text/javascript" src="./script/api.js"></script>
+<script src="./script/vue/vue.js"></script>
+<script type="text/javascript">
+	var audioStreamer = null,
+		MDemo = null;
+
+	apiready = function apiready() {
+		resetLocalAudioData();
+
+		api.parseTapmode();
+
+		var header = $api.byId('head');
+
+		$api.fixStatusBar(header);
+
+		var headerH = $api.offset(header).h;
+
+		// 初始化播放器，调用audioStreamer模块
+		console.log('首页加载音频播放器模块')
+		audioStreamer = api.require('audioStreamer');
+        
+		addEventListenerVideoPlay();
+
+
+<!--        MDemo = api.require('moduleDemo');-->
+
+		render(headerH);
+
+		api.setStatusBarStyle({
+			style: 'dark',
+			color: 'rgba(0, 0, 0, 0)'
+		});
+	};
+
+	/**
+	 * 重置音频相关设定数据
+	 * @method
+	 */
+	function resetLocalAudioData() {
+		// id: 当前所播放音频的id
+		// duration: 当前音频的总长
+		// current: 当前音频播放进度(时间)
+		// status: 当前音频状态 0-暂停, 1-播放
+		localStorage.setItem('local_audio_id', 0);
+		localStorage.setItem('local_audio_duration', 0);
+		localStorage.setItem('local_audio_current', 0);
+		localStorage.setItem('local_audio_status', 0);
+	}
+
+	function render(headerH) {
+		// 渲染页面
+		api.openFrameGroup({
+			name: 'video_audio_tab',
+			scrollEnabled: true,
+			rect: {
+				w: 'auto',
+				h: 'auto'
+			},
+			index: 0,
+			preload: 0,
+			frames: [{
+				name: 'video_audio_v_frm',
+				url: './html/video_audio/video_audio_v_frm.html',
+				useWKWebView: true,
+				pageParam: {
+					headerH: headerH
+				}
+			}, {
+				name: 'video_audio_a_frm',
+				url: './html/video_audio/video_audio_a_frm.html',
+				useWKWebView: true,
+				pageParam: {
+					headerH: headerH
+				}
+			}]
+		}, function (ret, err) {
+			if (ret) {
+				var index = ret.index;
+
+				api.execScript({
+					frameName: 'video_audio_head_frm',
+					script: 'vm.onChangeActive(' + index + ');'
+				});
+			}
+		});
+
+		api.openFrame({
+			name: 'video_audio_head_frm',
+			url: './html/video_audio/video_audio_head_frm.html',
+			bounces: false,
+			bgColor: 'rgba(0,0,0,0)',
+			rect: {
+				// marginTop: headerH,
+				w: 'auto',
+				h: 108 + headerH
+			},
+			pageParam: {
+				headerH: headerH
+			}
+		});
+	}
+
+	function changeTabCallback(i) {
+		// 头部导航切换回调
+		api.setFrameGroupIndex({
+			name: 'video_audio_tab',
+			index: i,
+			scroll: true
+		});
+	}
+
+	/* 
+	 *	根据需求音频播放页面不可关闭（音频需保持播放），尝试将音频播放模块在首页调用 
+	 */
+
+	function initPlayer(audio_url) {
+		console.log('初始化音频播放器')
+		// 开始播放
+		audioStreamer.openPlayer({
+			path: audio_url,
+		}, ret => {
+			if (ret.status) {
+
+				api.sendEvent({
+					name: 'audio_initPlay',
+					extra: {
+						duration: ret.duration,
+					}
+				}); // 自定义事件发送音频时长
+				localStorage.setItem('local_audio_duration', ret.duration); // 将当前播放音频的时长保存到本地
+				localStorage.setItem('local_audio_status', 1); // 当前音频状态置为1(播放)
+
+				// 监听播放进度
+				audioStreamer.addProgressListener({}, ret1 => {
+					api.sendEvent({
+						name: 'audio_progress',
+						extra: {
+							progress: ret1.progress,
+						}
+					});
+
+					audioStreamer.getCurrentTime(ret2 => {
+						api.sendEvent({
+							name: 'audio_currentTime',
+							extra: {
+								current: ret2.current,
+							}
+						});
+					});
+				});
+			}
+		});
+
+		// 播放状态监听
+		audioStreamer.addEventListener({}, ret => {
+			console.log(JSON.stringify(ret));
+			if (ret.state === 'finished') {
+				audioStreamer.removeProgressListener({}, function () {}); // 移除实时监听播放进度
+
+				api.sendEvent({
+					name: 'audio_finished',
+				});
+			} else if (ret.state === 'pause') {
+				audioStreamer.getCurrentTime(ret2 => {
+					console.log('保存当前时间进度_' + ret2.current)
+					localStorage.setItem('local_audio_current', ret2.current); // 保存当前播放进度(时间)
+				});
+				localStorage.setItem('local_audio_status', 0); // 当前音频状态置为0(暂停)
+			} else if (ret.state === 'resume') {
+				localStorage.setItem('local_audio_status', 1); // 当前音频状态置为1(播放)
+			}
+		});
+	}
+
+	function onPause() {
+		// 暂停音频播放
+		console.log('暂停')
+		audioStreamer.pause();
+
+		api.sendEvent({
+			name: 'audio_pause',
+		});
+	}
+
+	function onResume(type) {
+		// 恢复播放
+		console.log('恢复播放')
+		type ? audioStreamer.openPlayer() : audioStreamer.resume();
+
+		api.sendEvent({
+			name: 'audio_resume',
+		});
+	}
+
+	function onStop() {
+		// 停止播放
+		// 切换音频url时, 只调用模块的openPlayer方法会导致模块错误执行成恢复播放, 所以先进行停止操作
+		console.log('停止播放')
+		audioStreamer.stop();
+	}
+
+	function addEventListenerVideoPlay() {
+		// 监听视频/直播播放事件。若此时正在播放音频，需暂停
+		api.addEventListener({
+			name: 'videoPlay'
+		}, function (ret, err) {
+			onPause();
+		});
+	}
+</script>
+
+</html>

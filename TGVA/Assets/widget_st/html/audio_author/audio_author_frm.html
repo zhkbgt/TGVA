@@ -1,0 +1,218 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width" />
+  <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+  <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+  <link rel="stylesheet" href="../../css/custom/common.css">
+  <link rel="stylesheet" href="../../css/custom/components/author-head.css">
+  <link rel="stylesheet" href="../../css/custom/components/author-info.css">
+  <link rel="stylesheet" href="../../css/custom/page/audio-author.css">
+  <link rel="stylesheet" href="../../script/vant/index.css">
+  <script src="../../script/vue/vue.js"></script>
+  <script src="../../script/vant/vant.min.js"></script>
+</head>
+
+<body>
+  <div id="app" v-cloak>
+    <!-- <header id="head" class="aui-bar aui-bar-nav">
+      <a class="aui-btn aui-pull-left" tapmode onclick="onCloseWin()">
+        <span class="aui-iconfont aui-icon-left"></span>
+      </a>
+    </header> -->
+    <section class="author__panel">
+      <div class="author__panel-wrap">
+        <!-- <img :src="author.avatar"> -->
+        <v-img :url="author.avatar" err="../../image/avatar.png"></v-img>
+      </div>
+      <div class="flex-between">
+        <div class="author__name">{{ author.user_name }}</div>
+        <div class="author__avatar">
+          <!-- <img :src="author.avatar"> -->
+          <v-img :url="author.avatar" err="../../image/avatar.png"></v-img>
+        </div>
+      </div>
+      <div class="author__desc">
+        {{ author.self_introduce}}
+      </div>
+      <div class="flex-between">
+        <div class="author__visit">{{ author.play_times | views }}
+          <p>播放量</p>
+        </div>
+        <div class="author__btn" @click="fnFollow"><img :src="author.is_follow ? '../../icon/btn_followed_white.png' : '../../icon/btn_follow_white.png'"></div>
+      </div>
+    </section>
+    <section class="programs">
+      <div class="programs__head cell">
+        <div class="cell__title dark">节目<sub>({{ author.audio_number }})</sub></div>
+      </div>
+      <van-list class="program__body list" v-model="infiniteLoading" :finished="infiniteFinished" :immediate-check="false" :offset="50" @load="onLoad">
+        <div v-for="(el, i) in audios" :key="i" class="program__panel" @click="toAudioDetail(el.id)">
+          <div class="program__cover">
+            <div class="program__cover-mask">
+              <img src="../../icon/btn_play.png">
+            </div>
+            <!-- <img :src="el.cover"> -->
+            <v-img :url="el.cover" err="../../image/default.png"></v-img>
+          </div>
+          <div class="program__content">
+            <div class="program__info">
+              <div class="program__title dark">{{ el.title }}</div>
+              <div class="program__time gray">{{ el.create_at | interval-time2 }}</div>
+            </div>
+            <div class="program__params">
+              <img src="../../icon/icon_time.png">{{ el.time_length | duration-time }}
+              <img src="../../icon/icon_headset.png">{{ el.play_times | views }}
+            </div>
+          </div>
+        </div>
+        <!-- 占位，优化上滑loading时的过渡 -->
+        <div style="height: 50px" v-show="!infiniteLoading && !infiniteFinished"></div>
+        <!-- END -->
+        <div v-if="infiniteFinished" class="load-more">-- 没有更多 --</div>
+      </van-list>
+    </section>
+  </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script src="../../script/vue/components.js"></script>
+<script src="../../script/vue/filter.js"></script>
+<script src="../../script/ajax.js"></script>
+<script type="text/javascript">
+  var _extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+    return target;
+  };
+
+  var data = {
+    author: {},
+    // author: {"id":3,"user_name":"界面Vnews","avatar":"https://img.jiemian.com/userface/210x210/644/234/117763763-1526269907.jpg","self_introduce":"皮一下很开心","is_follow":0,"audio_number":14,"play_times":3},
+    audios: [],
+    // audios: [{"id":1,"title":"0","audio_url":"http://www.ytmp3.cn/down/55078.mp3","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7","create_at":0,"play_times":0,"time_length":309},{"id":2,"title":"0","audio_url":"http://www.ytmp3.cn/down/55077.mp3","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7","create_at":0,"play_times":0,"time_length":279},{"id":3,"title":"0","audio_url":"http://www.ytmp3.cn/down/55077.mp3","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7","create_at":0,"play_times":0,"time_length":136},{"id":4,"title":"0","audio_url":"http://www.ytmp3.cn/down/55076.mp3","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7","create_at":0,"play_times":0,"time_length":479},{"id":5,"title":"0","audio_url":"http://www.ytmp3.cn/down/55077.mp3","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7","create_at":0,"play_times":0,"time_length":300},{"id":6,"title":"0","audio_url":"http://www.ytmp3.cn/down/55076.mp3","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7","create_at":0,"play_times":0,"time_length":358},{"id":7,"title":"0","audio_url":"http://www.ytmp3.cn/down/55074.mp3","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7","create_at":0,"play_times":0,"time_length":236},{"id":8,"title":"0","audio_url":"http://www.ytmp3.cn/down/55074.mp3","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7","create_at":0,"play_times":0,"time_length":277},{"id":9,"title":"0","audio_url":"http://www.ytmp3.cn/down/55071.mp3","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7","create_at":0,"play_times":0,"time_length":364},{"id":10,"title":"0","audio_url":"http://www.ytmp3.cn/down/55076.mp3","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7","create_at":0,"play_times":0,"time_length":263}],
+    page: 1,
+    pageCount: 10,
+    infiniteLoading: false,
+    infiniteFinished: false,
+  };
+
+  var vm = new Vue({
+    el: '#app',
+    data: data,
+    methods: {
+      fetchProps: function fetchProps() {
+        this.author = {...api.pageParam.author};
+        this.audios = [...api.pageParam.audios.audio_list];
+        this.infiniteFinished = Boolean(api.pageParam.audios.bottom_key);
+      },
+      init: function init() {
+        this.fetchProps();
+      },
+      handleScroll: function handleScroll() {
+        var scrollD = document.scrollingElement.scrollTop;
+        if (scrollD > 0) {
+          api.execScript({
+            frameName: 'audio_author_head_frm',
+            script:'vm.ScrollCallback(1);'
+          });
+        } else {
+          api.execScript({
+            frameName: 'audio_author_head_frm',
+            script:'vm.ScrollCallback(0);'
+          });
+        }
+      },
+      onLoad: function onLoad() {
+        this.page++;
+
+        $ajax_post('appaudio/author_audio_list', {
+          author_id: this.author.id,
+          page: this.page,
+          page_count: this.pageCount,
+        }, res => {
+          this.audios.push(...res.audio_list);
+
+          this.infiniteLoading = false;
+          if (res.bottom_key) this.infiniteFinished = true;
+        }, {
+          hideLoading: true
+        });
+      },
+      fnFollow: function fnFollow() {
+        this.author.is_follow ? this.onCancelFollow() : this.onFollow();
+      },
+      onFollow: function onFollow() {
+        $ajax_post('appaudio/follow_audio_author', {
+          user_id: 100000,
+          author_id: this.author.id
+        }, () => {
+          this.author.is_follow = 1;
+          this.fnSendEventFollowAudioAuthor(1);
+        }, {
+          hideLoading: true
+        });
+      },
+      onCancelFollow: function onCancelFollow() {
+        $ajax_post('appaudio/cancle_follow_audio_author', {
+          user_id: 100000,
+          author_id: this.author.id
+        }, () => {
+          this.author.is_follow = 0;
+          this.fnSendEventFollowAudioAuthor(0);
+        }, {
+          hideLoading: true
+        });
+      },
+      fnSendEventFollowAudioAuthor: function fnSendEventFollowAudioAuthor(type) {
+        // type 0-取关，1-关注
+        api.sendEvent({
+          name: 'followAudioAuthor',
+          extra: {
+            type,
+          }
+        });
+      },
+      toAudioDetail: function toAudioDetail(id) {
+        api.openWin({
+          name: 'audio_detail_win',
+          url: '../audio_detail/audio_detail_win.html',
+          bounces: false,
+          pageParam: {
+            id,
+            from: api.winName,
+          }
+        });
+      },
+    },
+    mounted() {
+      document.addEventListener('scroll', this.handleScroll); 
+    },
+  });
+
+  apiready = function apiready() {
+    vm.init();
+    // var header = document.querySelector('#head');
+    // var authorDom = document.querySelector('.author__panel');
+
+    // $api.fixStatusBar(header);
+
+    // var headerH = $api.offset(header).h;
+    // console.log(headerH);
+    // $api.css(authorDom, 'margin-top: -' + headerH + 'px;padding-top: ' + headerH + 'px');
+    $api.css(document.querySelector('.author__panel'), 'padding-top: ' + (45 + api.pageParam.headerH) + 'px;');
+  };
+
+  function onCloseWin() {
+    api.closeWin();
+  }
+</script>
+
+</html>

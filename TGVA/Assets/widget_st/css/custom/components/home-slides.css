@@ -1,0 +1,86 @@
+/* 
+ * 首页轮播图公用样式
+ */
+
+.slides {
+  position: relative;
+  padding-top: 108px;
+}
+
+.slides__wrap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.slides__wrap img {
+  margin: -10%;
+  max-width: 120%;
+  width: 120%;
+  height: 120%;
+  -webkit-filter: blur(10px);
+  -moz-filter: blur(10px);
+  -ms-filter: blur(10px);
+  filter: blur(10px);
+}
+
+/* .slides__wrap #src_img {
+			visibility: hidden !important;
+		} */
+.slides__wrap-mask {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* background-color: rgba(0, 0, 0, .2); */
+}
+
+.slides__list {
+  padding: 1.5rem 0;
+  width: 100%;
+  background-color: transparent;
+}
+
+.slides__item {
+  /* margin: 0 auto; */
+  position: relative;
+  width: 80%;
+  /* padding: 0 4%; */
+}
+
+.slides__item-img {
+  position: relative;
+  margin: 0 4%;
+  height: auto;
+}
+
+.slides__item-img img {
+  width: 100%;
+  height: 144px;
+  border-radius: 6px;
+}
+
+.slides__item-title {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  padding: .5rem 1rem;
+  width: 100%;
+  font-size: .7rem;
+  color: #fff;
+  text-shadow: 0 0 1px #333333;
+}
+
+.swiper-container-horizontal>.swiper-pagination-bullets {
+  bottom: 0;
+  line-height: 1.5rem;
+}
+
+.swiper-pagination-bullet {
+  background: #fff;
+}

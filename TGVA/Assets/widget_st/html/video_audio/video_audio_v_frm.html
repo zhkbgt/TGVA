@@ -1,0 +1,295 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width" />
+	<meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+	<link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+	<link rel="stylesheet" href="../../css/custom/common.css">
+	<link rel="stylesheet" href="../../css/swiper/@3.4.2/swiper.min.css">
+	<link rel="stylesheet" href="../../script/vant/index.css">
+  <link rel="stylesheet" href="../../css/custom/components/home-slides.css">
+	<link rel="stylesheet" href="../../css/custom/page/home-video-tab.css">
+	<script src="../../script/vue/vue.js"></script>
+	<script src="../../script/vant/vant.min.js"></script>
+</head>
+
+<body>
+	<div id="app" v-cloak>
+		<!-- 轮播图 -->
+		<section class="slides">
+			<div class="slides__wrap">
+				<img :src="activeSlide" id="src_img">
+				<!-- <div class="slides__wrap-mask">
+					<canvas id="blur_img"></canvas>
+				</div> -->
+			</div>
+			<div class="swiper-container slides__list">
+				<div class="swiper-wrapper">
+					<div v-for="(el, i) in slides" :key="i" class="swiper-slide slides__item" @click="toVideoDetail(el.id, 1)">
+						<div class="slides__item-img">
+							<!-- <div class="slides__item-mask" v-show="el.cover"></div> -->
+							<img :src="el.cover">
+						</div>
+						<div class="slides__item-title">{{ el.title }}</div>
+					</div>
+				</div>
+				<!-- 如果需要分页器 -->
+				<div class="swiper-pagination"></div>
+			</div>
+		</section>
+		<!-- END -->
+		<!-- 直播列表 -->
+		<section class="video-live">
+			<div class="video-live__head cell">
+				<div class="cell__title gray">直播</div>
+				<div class="cell__value" @click="toLives">
+					<img src="../../icon/ico_more.png">
+				</div>
+			</div>
+			<div class="video-live__list list" @touchstart.stop="liveListTouchStart" @touchend.stop="liveListTouchEnd">
+				<div v-for="(el, i) in lives" :key="i" class="video-live__panel" @click="toLiveDetail(el.id, el.status)">
+					<div class="video-live__thumb">
+						<v-img :url="el.cover" err="../../image/default.png"></v-img>
+					</div>
+					<div class="video-live__title">{{ el.title }}</div>
+					<div class="video-live__info">
+						<div v-if="el.status === 0"><span style="color: rgb(3, 219, 211);">预告</span> {{ el.start_at | predict-time }}</div>
+						<div v-else-if="el.status === 1"><span>进行中</span></div>
+						<div v-else-if="el.status === 2"><span>已结束</span></div>
+						<div v-else-if="el.status === 3"><span style="color: #e7c040;">回放</span></div>
+					</div>
+				</div>
+			</div>
+		</section>
+		<!-- END -->
+		<!-- 视频列表 -->
+		<van-list class="video-list list" v-model="infiniteLoading" :finished="infiniteFinished" :immediate-check="false" :offset="50" @load="onLoad">
+			<div v-for="(el, i) in list" :key="i" class="video-list__panel" @click="toVideoDetail(el.id, 0)">
+				<div class="video-list__cover">
+					<div class="video-list__cover-mask">
+						<img src="../../icon/btn_play.png">
+					</div>
+					<img :src="el.cover" :height="videoHeight">
+					<div class="video-list__duration">{{ el.time_length | duration-time }}</div>
+				</div>
+				<div class="video-list__title dark">{{ el.title }}</div>
+				<div class="cell">
+					<div class="cell__title" @click.stop="toVideoAuthor(el.author_id)">
+						<div class="video-list__avatar">
+							<img :src="el.author.avatar ? el.author.avatar : '../../image/avatar.png'">
+						</div>
+						<div>
+							<div class="video-list__nickname gray">{{ el.author.user_name }}</div>
+							<div class="video-list__time light">{{ el.timestamp | interval-time }}</div>
+						</div>
+					</div>
+					<div class="cell__value light">
+						<img v-if="el.play_times" src="../../icon/ico_play.png">{{ el.play_times | views }}
+						<img src="../../icon/ico_export_light.png">
+					</div>
+				</div>
+			</div>
+			<!-- 占位，优化上滑loading时的过渡 -->
+			<div style="height: 50px" v-show="!infiniteLoading && !infiniteFinished"></div>
+			<!-- END -->
+			<div v-if="list.length && infiniteFinished" class="load-more">-- 没有更多 --</div>
+		</van-list>
+		<!-- END -->
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script src="../../script/vue/components.js"></script>
+<script src="../../script/vue/filter.js"></script>
+<script src="../../script/swiper/@3.4.2/swiper.js"></script>
+<script src="../../script/ajax.js"></script>
+<script type="text/javascript">
+	function _toConsumableArray(arr) {
+		if (Array.isArray(arr)) {
+			for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+				arr2[i] = arr[i];
+			}
+			return arr2;
+		} else {
+			return Array.from(arr);
+		}
+	}
+
+	var data = {
+		list: [],
+		lives: [],
+		slides: [],
+		activeSlide: null,
+		videoHeight: 120, // 视频列表 播放器/封面图初始默认高度
+		page: 1,
+		pageCount: 10,
+		refreshLoading: false,
+		infiniteLoading: false,
+		infiniteFinished: false,
+	};
+	var mySwiper = null;
+
+	var vm = new Vue({
+		el: '#app',
+		data: data,
+		filters: {
+			'predict-time': function predictTime(value) {
+				var date = new Date(value * 1000);
+
+				var m = date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1;
+				var d = date.getDate() < 10 ? '0' + date.getDate() : date.getDate();
+
+				var h = date.getHours() < 10 ? '0' + date.getHours() : date.getHours();
+				var min = date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes();
+
+				return m + '月' + d + '日 ' + h + ':' + min;
+			}
+		},
+		methods: {
+			fetchData: function fetchData() {
+				var _this2 = this;
+
+				$ajax_post('appvideo/video_fp', {}, function (res) {
+					_this2.slides = [].concat(_toConsumableArray(res.banners));
+					_this2.activeSlide = res.banners[0].cover;
+
+					_this2.lives = [].concat(_toConsumableArray(res.lives));
+
+					_this2.list = [].concat(_toConsumableArray(res.videos));
+					if (res.bottom_key) _this2.infiniteFinished = true; // 已是最后一页
+
+					setTimeout(function () {
+						_this2.initSwiper();
+					}, 10);
+				});
+			},
+			initSwiper: function initSwiper() {
+				var _this = this;
+				mySwiper = new Swiper('.swiper-container', {
+					autoplay: 3000,
+					autoplayDisableOnInteraction: false,
+					roundLengths: true,
+					slidesPerView: 'auto',
+					centeredSlides: true,
+					loop: true, // 循环模式选项
+					pagination: '.swiper-pagination',
+					onSlideChangeEnd: function onSlideChangeEnd(swiper) {
+						var active = swiper.activeIndex;
+						var src = '';
+
+						if (swiper.imagesToLoad[active]) {
+							src = swiper.imagesToLoad[active].src;
+							_this.activeSlide = src;
+						}
+					}
+				});
+			},
+			init: function init() {
+				this.fetchData();
+			},
+			handleScroll: function handleScroll() {
+				var scrolly = document.scrollingElement.scrollTop;
+
+				api.execScript({
+					frameName: 'video_audio_head_frm',
+					script: 'vm.scrollingCallback(' + scrolly + ');'
+				});
+			},
+			liveListTouchStart: function liveListTouchStart() {
+				api.lockSlidPane(); // 锁住，不随手指滑动
+				api.setFrameGroupAttr({
+					scrollEnabled: false
+				}); // 关闭framegroup滑动切换
+			},
+			liveListTouchEnd: function liveListTouchEnd() {
+				api.lockSlidPane(); // 解锁，随手指滑动
+				api.setFrameGroupAttr({
+					scrollEnabled: true
+				}); // 开启framegroup滑动切换
+			},
+			onRefresh: function onRefresh() {
+				var _this3 = this;
+				setTimeout(() => {
+					_this3.refreshLoading = false;
+				}, 1000);
+			},
+			onLoad: function onLoad() {
+				this.page++;
+
+				var _this4 = this;
+				$ajax_post('appvideo/video_by_page', {
+					page: _this4.page,
+					page_count: _this4.pageCount
+				}, res => {
+					res.videos.forEach(el => {
+						_this4.list.push(el);
+					});
+
+					_this4.infiniteLoading = false; // 控制加载结束
+					if (res.bottom_key) _this4.infiniteFinished = true; // 已是最后一页
+				}, {
+					hideLoading: true
+				});
+			},
+			toLives: function toLives() {
+				api.openWin({
+					name: 'lives_win',
+					url: '../lives/lives_win.html',
+					bounces: false,
+				});
+			},
+			toVideoDetail: function toVideoDetail(id, isBanner) {
+				console.log(id);
+				console.log(isBanner);
+				api.openWin({
+					name: 'video_' + id + '_detail_win',
+					url: '../video_detail/video_detail_win.html',
+					bounces: false,
+					pageParam: {
+						id: id,
+						isBanner: isBanner
+					}
+				});
+			},
+			toLiveDetail: function toLiveDetail(id, status) {
+				console.log(id)
+				console.log(status)
+				api.openWin({
+					name: 'live_' + id + '_detail_win',
+					url: '../live_detail/live_detail_win.html',
+					bounces: false,
+					pageParam: {
+						id: id,
+						status: status
+					}
+				});
+			},
+			toVideoAuthor: function toVideoAuthor(id) {
+				console.log(id)
+				api.openWin({
+					name: 'video_author_win',
+					url: '../video_author/video_author_win.html',
+					bounces: false,
+					pageParam: {
+						id
+					}
+				});
+			},
+		},
+		mounted: function mounted() {
+			this.videoHeight = document.body.clientWidth * 0.57;
+			document.addEventListener('scroll', this.handleScroll);
+		}
+	});
+
+	apiready = function apiready() {
+		vm.init();
+
+		api.parseTapmode();
+
+		$api.css(document.querySelector('.slides'), 'padding-top: ' + (108 + api.pageParam.headerH) + 'px;');
+	};
+</script>
+
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, initial-scale=1.0, width=device-width" />
+  <meta name="format-detection" content="telephone=no, email=no, date=no, address=no">
+  <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
+  <link rel="stylesheet" href="../../css/custom/common.css">
+  <link rel="stylesheet" href="../../css/custom/components/home-head.css">
+</head>
+
+<body>
+  <!-- <header id="head" class="aui-bar aui-bar-nav">
+		<div class="aui-title">测试页</div>
+		<a class="aui-btn aui-pull-right" tapmode>
+      <img src="../../icon/ico_headset.png" width="20">
+    </a>
+	</header> -->
+  <div id="app" v-cloak class="header-wrap" :class="{'scrolling': isScroll}">
+    <header class="header">
+      <div class="searchbar">
+        <div class="searchbar__wrap" @click="toSearch">
+          <img src="../../icon/search_light.png" width="18">
+          <div class="aui-ellipsis-1">{{ topSearch[0] }}</div>
+        </div>
+      </div>
+      <div class="header__icon" tapmode @click="toAudioDetail">
+        <img src="../../icon/ico_headset.png" width="20">
+      </div>
+    </header>
+    <nav class="aui-bar aui-bar-nav va-nav">
+      <div class="aui-bar aui-bar-btn">
+        <div v-for="(item, i) in nav" :key="i" class="aui-bar-btn-item" :class="{'active': i===active}" @click="onChangeTab(i)">
+          <span>{{ item }}</span>
+        </div>
+      </div>
+    </nav>
+  </div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script src="../../script/vue/vue.js"></script>
+<script src="../../script/ajax.js"></script>
+<script type="text/javascript">
+  function _toConsumableArray(arr) {
+    if (Array.isArray(arr)) {
+      for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+        arr2[i] = arr[i];
+      }
+      return arr2;
+    } else {
+      return Array.from(arr);
+    }
+  }
+
+  var data = {
+    nav: ['视频', '音频'],
+    active: 0,
+    isScroll: false,
+    topSearch: []
+  };
+
+  var vm = new Vue({
+    el: '#app',
+    data: data,
+    methods: {
+      fetchData: function fetchData() {
+        var _this = this;
+
+        // this.topSearch = [...api.pageParam.topSearch];
+        $ajax_post('appvasearch/top_search_list', {}, function (res) {
+          _this.topSearch = [].concat(_toConsumableArray(res));
+          // this.initAC();
+        }, {
+          hideLoading: true
+        });
+      },
+      init: function init() {
+        this.fetchData();
+      },
+      onChangeTab: function onChangeTab(i) {
+        this.onChangeActive(i);
+
+        api.execScript({
+          script: 'changeTabCallback(' + i + ');'
+        });
+      },
+      onChangeActive: function onChangeActive(i) {
+        this.active = Number(i);
+      },
+      scrollingCallback: function scrollingCallback(scroll) {
+        var headerDom = document.querySelector('.header-wrap');
+        var flag = 45; // 控制顶部样式改变的滚动阈值
+        scroll = Number(scroll);
+
+        if (scroll !== 0) this.isScroll = true;
+
+        if (scroll <= flag) {
+          var precent = (scroll / flag).toFixed(2);
+          // console.log(precent)
+
+          headerDom.style.top = '-' + scroll + 'px';
+          headerDom.style.backgroundColor = 'rgba(255, 255, 255, ' + precent + ')';
+
+          if (scroll === 0) this.isScroll = false;
+        } else {
+          headerDom.style.top = '-45px';
+          headerDom.style.backgroundColor = 'rgba(255, 255, 255, 1)';
+        }
+
+        // console.log(this.isScroll)
+      },
+      toSearch: function toSearch() {
+        api.openWin({
+          name: 'search_win',
+          url: '../search/search_win.html',
+          bounces: false,
+          pageParam: {
+            topSearch: [].concat(_toConsumableArray(this.topSearch))
+          }
+        });
+      },
+      toAudioDetail: function toAudioDetail() {
+        api.openWin({
+          name: 'audio_detail_win',
+          url: '../audio_detail/audio_detail_win.html',
+          bounces: false,
+          pageParam: {
+            id: Number(localStorage.getItem('local_audio_id')),
+            from: api.winName,
+          }
+        });
+      },
+    }
+  });
+
+  apiready = function apiready() {
+    var headerDom = $api.dom('.header-wrap');
+    $api.css(headerDom, 'padding-top: ' + api.pageParam.headerH + 'px');
+
+    vm.init();
+  };
+</script>
+
+</html>
