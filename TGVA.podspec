@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'TGVA'
-  s.version          = '0.1.1'
+  s.version          = '0.1.2'
   s.summary          = 'pod '
 
 # This description is used to generate tags and improve search results.
@@ -30,18 +30,18 @@ TODO: Add long description of the pod here. pod pod
 
   s.ios.deployment_target = '9.0'
 
- # s.source_files = 'TGVA/Classes/**/*'
+  s.source_files = 'TGVA/Classes/**/*'
   
    s.resource_bundles = {
      'TGVA' => ['TGVA/Assets/*']
    }
 
-  s.vendored_frameworks = 'TGVA.framework'
+  #s.vendored_frameworks = 'TGVA.framework'
 
-  s.libraries = 'icucore', 'c++', 'bsm', 'z', 'bz2', 'resolv', 'c++abi'
-  s.frameworks = 'UIKit', 'MapKit', 'WebKit'
+  #s.libraries = 'icucore', 'c++', 'bsm', 'z', 'bz2', 'resolv', 'c++abi'
+  #s.frameworks = 'UIKit', 'MapKit', 'WebKit'
 	
   # s.public_header_files = 'Pod/Classes/**/*.h'
   # s.frameworks = 'UIKit', 'MapKit'
-  # s.dependency 'AFNetworking', '~> 2.3'
+  s.dependency 'TGCommunity', '~> 0.1.3'
 end
