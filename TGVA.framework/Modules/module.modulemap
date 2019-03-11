@@ -1,0 +1,6 @@
+framework module TGVA {
+  umbrella header "TGVA.h"
+
+  export *
+  module * { export * }
+}
