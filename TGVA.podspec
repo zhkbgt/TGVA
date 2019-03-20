@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'TGVA'
-  s.version          = '0.1.5'
+  s.version          = '0.1.6'
   s.summary          = 'pod '
 
 # This description is used to generate tags and improve search results.
@@ -30,6 +30,10 @@ TODO: Add long description of the pod here. pod pod
 
   s.ios.deployment_target = '9.0'
 
+# s.xcconfig = {
+#    'VALID_ARCHS' =>  '',
+#  }
+
 #  s.source_files = 'TGVA/Classes/**/*'
   
    s.resource_bundles = {
@@ -43,5 +47,5 @@ TODO: Add long description of the pod here. pod pod
 	
   # s.public_header_files = 'Pod/Classes/**/*.h'
   # s.frameworks = 'UIKit', 'MapKit'
-  s.dependency 'TAPI'
+  s.dependency 'TTAPI'
 end
