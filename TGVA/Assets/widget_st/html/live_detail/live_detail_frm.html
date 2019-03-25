@@ -54,7 +54,8 @@
             <div class="simple">{{ live.simple }}</div>
           </div>
           <div class="tab-pane" v-show="active === 1">
-            <van-list class="comments list" :class="{'empty': !comments.length}" v-model="infiniteLoading" :offset="60" :finished="infiniteFinished" :immediate-check="false" @load="onLoad">
+            <van-list class="comments list" :class="{'empty': !comments.length}" v-model="infiniteLoading" :offset="60"
+              :finished="infiniteFinished" :immediate-check="false" @load="onLoad">
               <div v-for="(el, i) in comments" :key="i" class="comment__panel">
                 <div class="comment__info">
                   <div class="comment__avatar">
@@ -64,7 +65,8 @@
                     <div class="comment__nickname">{{ el.user_nickname }}
                       <div class="comment__like" @click="fnCommentLike(i)">
                         <span v-if="el.like_number">{{ el.like_number }}</span>
-                        <div><img :src="el.is_like ? '../../icon/ico_like_red.png' : '../../icon/ico_thumbsup_white.png'"width="18"></div>
+                        <div><img :src="el.is_like ? '../../icon/ico_like_red.png' : '../../icon/ico_thumbsup_white.png'"
+                            width="18"></div>
                       </div>
                     </div>
                     <div class="comment__desc" @click="fnAnswerComment(i, el.id)">{{ el.comment }}</div>
@@ -73,8 +75,10 @@
                 </div>
                 <div class="comment__reply" v-if="el.answer_list.length">
                   <div v-for="(ans, j) in el.answer_list" :key="j" class="comment-ans__panel hairline">
-                    <div class="comment-ans__user" v-if="ans.user_nickname === ans.listen_nickname">{{ ans.user_nickname }}:</div>
-                    <div class="comment-ans__user" v-else>{{ ans.user_nickname }}<span>回复</span>{{ ans.listen_nickname }}:</div>
+                    <div class="comment-ans__user" v-if="ans.user_nickname === ans.listen_nickname">{{
+                      ans.user_nickname }}:</div>
+                    <div class="comment-ans__user" v-else>{{ ans.user_nickname }}<span>回复</span>{{ ans.listen_nickname
+                      }}:</div>
                     <div class="comment-ans__content" @click="fnAnswerComment(i, el.id, ans.user_id)">{{ ans.answer }}</div>
                   </div>
                 </div>
@@ -131,6 +135,17 @@
     return target;
   };
 
+  function _toConsumableArray(arr) {
+    if (Array.isArray(arr)) {
+      for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+        arr2[i] = arr[i];
+      }
+      return arr2;
+    } else {
+      return Array.from(arr);
+    }
+  }
+
   var data = {
     active: 0,
     live: {},
@@ -144,8 +159,8 @@
     infiniteFinished: false,
     iconToggle: {
       like: false,
-    },     // 标志位, 控制点赞icon的切换效果
-    coverHeight: 120,    // 直播封面默认高度
+    }, // 标志位, 控制点赞icon的切换效果
+    coverHeight: 120, // 直播封面默认高度
   };
   var playModule, header_h;
 
@@ -156,11 +171,12 @@
       fetchProps: function fetchProps() {
         this.live = _extends({}, api.pageParam.live.video_live_detail);
         this.author = _extends({}, api.pageParam.live.author);
-        this.comments = [...api.pageParam.comments.comment_list];
+        this.comments = [].concat(_toConsumableArray(api.pageParam.comments.comment_list));
         this.infiniteFinished = Boolean(api.pageParam.comments.bottom_key);
       },
       initPlayer: function initPlayer() {
-        var _this = this, url;
+        var _this = this,
+          url;
 
         // status: 1-直播进行中，优先解析hls流；3-已有回放地址，解析video_url
         if (this.live.status === 3) {
@@ -250,14 +266,15 @@
         // $api.css(document.querySelector('header'), 'padding-top: 20px;');
         // header_h = 20;
 
-        if (this.live.status === 0 || this.live.status === 2) $api.css(document.querySelector('.live__cover'), 'width: 100%;height: ' + screenWidth * 0.65 + 'px');
+        if (this.live.status === 0 || this.live.status === 2) $api.css(document.querySelector('.live__cover'),
+          'width: 100%;height: ' + screenWidth * 0.65 + 'px');
 
         $api.css(document.querySelector('.info'), 'top: ' + (screenWidth * 0.65 + header_h) + 'px;height: ' + (
           screenHeight - screenWidth * 0.65 - header_h - 60) + 'px;');
 
         var authorDomH = $api.offset(document.querySelectorAll('.info__section')[0]).h;
         var tabPaneDom = document.querySelectorAll('.tab-pane');
-        tabPaneDom.forEach(el => {
+        tabPaneDom.forEach(function (el) {
           $api.css(el, 'height: ' + (screenHeight - screenWidth * 0.65 - header_h - authorDomH - 105) + 'px');
         });
         // $api.css(document.querySelectorAll('.info__section')[1], 'height: ' + (screenHeight - screenWidth * 0.65 - header_h - 60 - introDomHeight) + 'px');
@@ -284,8 +301,8 @@
           page: this.page,
           page_count: this.pageCount,
           type: 6
-        }, res => {
-          res.comment_list.forEach(el => {
+        }, function (res) {
+          res.comment_list.forEach(function (el) {
             this.comments.push(el);
           });
 
@@ -323,7 +340,7 @@
         $ajax_post('appvideo/follow_video_author', {
           author_id: this.author.id,
           user_id: 100000
-        }, () => {
+        }, function () {
           this.live.is_follow_author = 1;
         }, {
           hideLoading: true
@@ -333,7 +350,7 @@
         $ajax_post('appvideo/cancle_follow_video_author', {
           author_id: this.author.id,
           user_id: 100000
-        }, () => {
+        }, function () {
           this.live.is_follow_author = 0;
         }, {
           hideLoading: true
@@ -384,7 +401,7 @@
         $ajax_post('appcomment/comment_like', {
           user_id: 100000,
           comment_id: this.comments[i].id
-        }, () => {
+        }, function () {
           this.comments[i].is_like = 1;
           this.comments[i].like_number++;
         }, {
@@ -395,7 +412,7 @@
         $ajax_post('appcomment/cancle_comment_like', {
           user_id: 100000,
           comment_id: this.comments[i].id
-        }, () => {
+        }, function () {
           this.comments[i].is_like = 0;
           this.comments[i].like_number--;
         }, {
@@ -503,7 +520,7 @@
       toLiveAuthor: function toVideoAuthor(id) {
         console.log(id)
         // 先暂停播放，再跳转页面
-        playModule.pause(function(ret, err) {
+        playModule.pause(function (ret, err) {
           console.log(JSON.stringify(ret));
         });
 
@@ -527,13 +544,13 @@
   };
 
   setTimeout(function () {
-		if (typeof api === 'undefined') {
-			api = {
-				pageParam: {}
-			};
-			apiready();
-		}
-	}, 500);
+    if (typeof api === 'undefined') {
+      api = {
+        pageParam: {}
+      };
+      apiready();
+    }
+  }, 500);
 </script>
 
 </html>

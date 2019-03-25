@@ -92,9 +92,12 @@
   <div id="app" class="aui-content audios" v-cloak>
     <header class="audios-head dark">全部选集</header>
     <section class="audios-list">
-      <div class="audios__loading" v-if="!isLoaded"><van-loading type="spinner" /></div>
+      <div class="audios__loading" v-if="!isLoaded">
+        <van-loading type="spinner" />
+      </div>
       <!-- 上滑加载列表 -->
-      <van-list class="list" v-model="infiniteLoading" :finished="infiniteFinished" :immediate-check="false" :offset="60" @load="onLoad">
+      <van-list class="list" v-model="infiniteLoading" :finished="infiniteFinished" :immediate-check="false" :offset="60"
+        @load="onLoad">
         <div v-for="(el, i) in list" :key="i" class="audios-item flex-between hairline" @click="fnSwitchAudio(el.id)">
           <div class="audios-item__title gray">{{ el.title }}</div>
           <div class="audios-item__duration"><img src="../../icon/icon_time.png"> {{ el.time_length | duration-time }}</div>
@@ -113,6 +116,17 @@
 <script src="../../script/vue/filter.js"></script>
 <script src="../../script/ajax.js"></script>
 <script type="text/javascript">
+  function _toConsumableArray(arr) {
+    if (Array.isArray(arr)) {
+      for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+        arr2[i] = arr[i];
+      }
+      return arr2;
+    } else {
+      return Array.from(arr);
+    }
+  }
+
   var data = {
     authorId: null,
     list: [],
@@ -120,28 +134,32 @@
     pageCount: 10,
     infiniteFinished: false,
     infiniteLoading: false,
-    isLoaded: false,    // 初始加载标识位
+    isLoaded: false // 初始加载标识位
   };
 
-  const vm = new Vue({
+  var vm = new Vue({
     el: '#app',
-    data,
+    data: data,
     methods: {
       fetchProps: function fetchProps() {
         this.authorId = api.pageParam.id;
       },
       fetchData: function fetchData() {
+        var _this = this;
+
         $ajax_post('appaudio/author_audio_list', {
           author_id: this.authorId,
           page: this.page,
-          page_count: this.pageCount,
-        }, res => {
-          this.list.push(...res.audio_list);
+          page_count: this.pageCount
+        }, function (res) {
+          var _list;
 
-          if (this.page === 1) this.isLoaded = true;
-          else this.infiniteLoading = false;
+          (_list = _this.list).push.apply(_list, _toConsumableArray(res.audio_list));
 
-          if (res.bottom_key) this.infiniteFinished = true;
+          if (_this.page === 1) _this.isLoaded = true;
+          else _this.infiniteLoading = false;
+
+          if (res.bottom_key) _this.infiniteFinished = true;
         }, {
           hideLoading: true
         });
@@ -157,20 +175,20 @@
       fnSwitchAudio: function fnSwitchAudio(id) {
         // 切换音频
         api.execScript({
-          script:'switchAudio(' + id + ');'
+          script: 'switchAudio(' + id + ');'
         });
-      },
-    },
+      }
+    }
   });
 
-  apiready = function () {
+  apiready = function apiready() {
     var audiosDom = document.querySelector('.audios');
     var mask = document.querySelector('.aui-mask');
 
     $api.css(audiosDom, 'opacity: 1;transform: translate3d(0,0,0);-webkit-transform: translate3d(0,0,0);');
     $api.css(mask, 'transform: translate3d(0,0,0);-webkit-transform: translate3d(0,0,0);');
     mask.onclick = clickOutside;
-    
+
     vm.init();
   };
 
@@ -185,15 +203,6 @@
       api.closeFrame({});
     }, 300);
   }
-
-  setTimeout(function () {
-    if (typeof api === 'undefined') {
-      api = {
-        pageParam: {}
-      };
-      apiready();
-    }
-  }, 500);
 </script>
 
 </html>

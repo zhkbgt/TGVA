@@ -96,7 +96,6 @@
   }
 
   function forbidSlidBackForIOS() {
-<!--      alert(321)-->
     // 禁止iOS右滑返回，否则无法正常关闭并清理播放器
     api.setWinAttr({
       slidBackEnabled: false
@@ -104,7 +103,6 @@
   }
 
   function addEventListenerKeyback() {
-<!--      alert(123)-->
     // 监听Android返回键，根据视频播放器是否全屏进行处理
     api.addEventListener({
       name: 'keyback'

@@ -16,6 +16,18 @@
   <script src="../../script/vue/vue.js"></script>
   <script src="../../script/ajax.js"></script>
   <script type="text/javascript">
+    var _extends = Object.assign || function (target) {
+      for (var i = 1; i < arguments.length; i++) {
+        var source = arguments[i];
+        for (var key in source) {
+          if (Object.prototype.hasOwnProperty.call(source, key)) {
+            target[key] = source[key];
+          }
+        }
+      }
+      return target;
+    };
+
     apiready = function apiready() {
       api.parseTapmode();
 
@@ -30,16 +42,16 @@
       // 获取音频作者信息和该作者音频列表
       $ajax_post('appaudio/audio_author_detail', {
         user_id: 100000,
-        author_id: id,
-      }, res1 => {
-        var author = {...res1.author_info};
+        author_id: id
+      }, function (res1) {
+        var author = _extends({}, res1.author_info);
 
         $ajax_post('appaudio/author_audio_list', {
           author_id: id,
           page: 1,
-          page_count: 10,
-        }, res2 => {
-          var audios = {...res2};
+          page_count: 10
+        }, function (res2) {
+          var audios = _extends({}, res2);
 
           // 渲染页面内容
           api.openFrame({
@@ -51,8 +63,8 @@
             },
             pageParam: {
               headerH: headerH,
-              author,
-              audios,
+              author: author,
+              audios: audios
             }
           });
 
@@ -67,13 +79,11 @@
             },
             pageParam: {
               headerH: headerH,
-              author,
+              author: author
             }
           });
         });
       });
-
-      
     };
   </script>
 </body>

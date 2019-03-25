@@ -48,7 +48,8 @@
       <div class="programs__head cell">
         <div class="cell__title dark">节目<sub>({{ author.audio_number }})</sub></div>
       </div>
-      <van-list class="program__body list" v-model="infiniteLoading" :finished="infiniteFinished" :immediate-check="false" :offset="50" @load="onLoad">
+      <van-list class="program__body list" v-model="infiniteLoading" :finished="infiniteFinished" :immediate-check="false"
+        :offset="50" @load="onLoad">
         <div v-for="(el, i) in audios" :key="i" class="program__panel" @click="toAudioDetail(el.id)">
           <div class="program__cover">
             <div class="program__cover-mask">
@@ -93,15 +94,24 @@
     return target;
   };
 
+  function _toConsumableArray(arr) {
+    if (Array.isArray(arr)) {
+      for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+        arr2[i] = arr[i];
+      }
+      return arr2;
+    } else {
+      return Array.from(arr);
+    }
+  }
+
   var data = {
     author: {},
-    // author: {"id":3,"user_name":"界面Vnews","avatar":"https://img.jiemian.com/userface/210x210/644/234/117763763-1526269907.jpg","self_introduce":"皮一下很开心","is_follow":0,"audio_number":14,"play_times":3},
     audios: [],
-    // audios: [{"id":1,"title":"0","audio_url":"http://www.ytmp3.cn/down/55078.mp3","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7","create_at":0,"play_times":0,"time_length":309},{"id":2,"title":"0","audio_url":"http://www.ytmp3.cn/down/55077.mp3","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7","create_at":0,"play_times":0,"time_length":279},{"id":3,"title":"0","audio_url":"http://www.ytmp3.cn/down/55077.mp3","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7","create_at":0,"play_times":0,"time_length":136},{"id":4,"title":"0","audio_url":"http://www.ytmp3.cn/down/55076.mp3","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7","create_at":0,"play_times":0,"time_length":479},{"id":5,"title":"0","audio_url":"http://www.ytmp3.cn/down/55077.mp3","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7","create_at":0,"play_times":0,"time_length":300},{"id":6,"title":"0","audio_url":"http://www.ytmp3.cn/down/55076.mp3","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7","create_at":0,"play_times":0,"time_length":358},{"id":7,"title":"0","audio_url":"http://www.ytmp3.cn/down/55074.mp3","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7","create_at":0,"play_times":0,"time_length":236},{"id":8,"title":"0","audio_url":"http://www.ytmp3.cn/down/55074.mp3","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7","create_at":0,"play_times":0,"time_length":277},{"id":9,"title":"0","audio_url":"http://www.ytmp3.cn/down/55071.mp3","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7","create_at":0,"play_times":0,"time_length":364},{"id":10,"title":"0","audio_url":"http://www.ytmp3.cn/down/55076.mp3","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7","create_at":0,"play_times":0,"time_length":263}],
     page: 1,
     pageCount: 10,
     infiniteLoading: false,
-    infiniteFinished: false,
+    infiniteFinished: false
   };
 
   var vm = new Vue({
@@ -109,8 +119,8 @@
     data: data,
     methods: {
       fetchProps: function fetchProps() {
-        this.author = {...api.pageParam.author};
-        this.audios = [...api.pageParam.audios.audio_list];
+        this.author = _extends({}, api.pageParam.author);
+        this.audios = [].concat(_toConsumableArray(api.pageParam.audios.audio_list));
         this.infiniteFinished = Boolean(api.pageParam.audios.bottom_key);
       },
       init: function init() {
@@ -121,27 +131,31 @@
         if (scrollD > 0) {
           api.execScript({
             frameName: 'audio_author_head_frm',
-            script:'vm.ScrollCallback(1);'
+            script: 'vm.ScrollCallback(1);'
           });
         } else {
           api.execScript({
             frameName: 'audio_author_head_frm',
-            script:'vm.ScrollCallback(0);'
+            script: 'vm.ScrollCallback(0);'
           });
         }
       },
       onLoad: function onLoad() {
+        var _this = this;
+
         this.page++;
 
         $ajax_post('appaudio/author_audio_list', {
           author_id: this.author.id,
           page: this.page,
-          page_count: this.pageCount,
-        }, res => {
-          this.audios.push(...res.audio_list);
+          page_count: this.pageCount
+        }, function (res) {
+          var _audios;
 
-          this.infiniteLoading = false;
-          if (res.bottom_key) this.infiniteFinished = true;
+          (_audios = _this.audios).push.apply(_audios, _toConsumableArray(res.audio_list));
+
+          _this.infiniteLoading = false;
+          if (res.bottom_key) _this.infiniteFinished = true;
         }, {
           hideLoading: true
         });
@@ -150,23 +164,27 @@
         this.author.is_follow ? this.onCancelFollow() : this.onFollow();
       },
       onFollow: function onFollow() {
+        var _this2 = this;
+
         $ajax_post('appaudio/follow_audio_author', {
           user_id: 100000,
           author_id: this.author.id
-        }, () => {
-          this.author.is_follow = 1;
-          this.fnSendEventFollowAudioAuthor(1);
+        }, function () {
+          _this2.author.is_follow = 1;
+          _this2.fnSendEventFollowAudioAuthor(1);
         }, {
           hideLoading: true
         });
       },
       onCancelFollow: function onCancelFollow() {
+        var _this3 = this;
+
         $ajax_post('appaudio/cancle_follow_audio_author', {
           user_id: 100000,
           author_id: this.author.id
-        }, () => {
-          this.author.is_follow = 0;
-          this.fnSendEventFollowAudioAuthor(0);
+        }, function () {
+          _this3.author.is_follow = 0;
+          _this3.fnSendEventFollowAudioAuthor(0);
         }, {
           hideLoading: true
         });
@@ -176,37 +194,37 @@
         api.sendEvent({
           name: 'followAudioAuthor',
           extra: {
-            type,
+            type: type
           }
         });
       },
       toAudioDetail: function toAudioDetail(id) {
+        // 当音频详情页面已存在，又再次打开时，发送事件
+        api.sendEvent({
+          name: 'openAudio',
+          extra: {
+            id: id
+          }
+        });
+
         api.openWin({
           name: 'audio_detail_win',
           url: '../audio_detail/audio_detail_win.html',
           bounces: false,
           pageParam: {
-            id,
-            from: api.winName,
+            id: id,
+            from: api.winName
           }
         });
-      },
+      }
     },
-    mounted() {
-      document.addEventListener('scroll', this.handleScroll); 
-    },
+    mounted: function mounted() {
+      document.addEventListener('scroll', this.handleScroll);
+    }
   });
 
   apiready = function apiready() {
     vm.init();
-    // var header = document.querySelector('#head');
-    // var authorDom = document.querySelector('.author__panel');
-
-    // $api.fixStatusBar(header);
-
-    // var headerH = $api.offset(header).h;
-    // console.log(headerH);
-    // $api.css(authorDom, 'margin-top: -' + headerH + 'px;padding-top: ' + headerH + 'px');
     $api.css(document.querySelector('.author__panel'), 'padding-top: ' + (45 + api.pageParam.headerH) + 'px;');
   };
 

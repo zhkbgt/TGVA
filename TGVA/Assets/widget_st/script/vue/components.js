@@ -9,24 +9,25 @@ Vue.component('v-img', {
       default: 'auto'
     }
   },
-  data () {
+  data: function data() {
     return {
       src: this.url
-    }
+    };
   },
+
   watch: {
-    url () {
-      (this.url === null || this.url === undefined ) ?
-        this.src = this.err :
-        this.src = this.url;
+    url: function url() {
+      this.url === null || this.url === undefined ? this.src = this.err : this.src = this.url;
     }
   },
-  mounted () {
+  mounted: function mounted() {
+    var _this = this;
+
     if (this.url === null || this.url === undefined) {
       this.src = this.err;
     }
-    this.$refs.img.onerror = () => {
-      this.src = this.err
-    }
+    this.$refs.img.onerror = function () {
+      _this.src = _this.err;
+    };
   }
 });

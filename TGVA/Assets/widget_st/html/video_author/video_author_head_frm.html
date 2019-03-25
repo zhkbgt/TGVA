@@ -41,7 +41,7 @@
   var data = {
     author: {},
     isScroll: false,
-    refreshLoading: false,
+    refreshLoading: false
   };
 
   var vm = new Vue({
@@ -49,7 +49,7 @@
     data: data,
     methods: {
       fetchProps: function fetchProps() {
-        this.author = {...api.pageParam.author};
+        this.author = _extends({}, api.pageParam.author);
       },
       init: function init() {
         this.fetchProps();
@@ -57,7 +57,7 @@
       ScrollCallback: function ScrollCallback(temp) {
         this.isScroll = Boolean(temp);
       }
-    },
+    }
   });
 
   apiready = function apiready() {
@@ -70,15 +70,6 @@
   function onCloseWin() {
     api.closeWin();
   }
-
-  setTimeout(function () {
-		if (typeof api === 'undefined') {
-			api = {
-				pageParam: {}
-			};
-			apiready();
-		}
-	}, 500);
 </script>
 
 </html>

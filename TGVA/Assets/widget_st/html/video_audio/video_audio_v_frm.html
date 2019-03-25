@@ -9,7 +9,7 @@
 	<link rel="stylesheet" href="../../css/custom/common.css">
 	<link rel="stylesheet" href="../../css/swiper/@3.4.2/swiper.min.css">
 	<link rel="stylesheet" href="../../script/vant/index.css">
-  <link rel="stylesheet" href="../../css/custom/components/home-slides.css">
+	<link rel="stylesheet" href="../../css/custom/components/home-slides.css">
 	<link rel="stylesheet" href="../../css/custom/page/home-video-tab.css">
 	<script src="../../script/vue/vue.js"></script>
 	<script src="../../script/vant/vant.min.js"></script>
@@ -65,7 +65,8 @@
 		</section>
 		<!-- END -->
 		<!-- 视频列表 -->
-		<van-list class="video-list list" v-model="infiniteLoading" :finished="infiniteFinished" :immediate-check="false" :offset="50" @load="onLoad">
+		<van-list class="video-list list" v-model="infiniteLoading" :finished="infiniteFinished" :immediate-check="false"
+		 :offset="50" @load="onLoad">
 			<div v-for="(el, i) in list" :key="i" class="video-list__panel" @click="toVideoDetail(el.id, 0)">
 				<div class="video-list__cover">
 					<div class="video-list__cover-mask">
@@ -210,7 +211,7 @@
 			},
 			onRefresh: function onRefresh() {
 				var _this3 = this;
-				setTimeout(() => {
+				setTimeout(function () {
 					_this3.refreshLoading = false;
 				}, 1000);
 			},
@@ -221,8 +222,8 @@
 				$ajax_post('appvideo/video_by_page', {
 					page: _this4.page,
 					page_count: _this4.pageCount
-				}, res => {
-					res.videos.forEach(el => {
+				}, function (res) {
+					res.videos.forEach(function(el) {
 						_this4.list.push(el);
 					});
 

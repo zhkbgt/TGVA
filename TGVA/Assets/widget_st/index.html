@@ -30,13 +30,11 @@
 		var headerH = $api.offset(header).h;
 
 		// 初始化播放器，调用audioStreamer模块
-		console.log('首页加载音频播放器模块')
+		console.log('首页加载音频播放器模块');
 		audioStreamer = api.require('audioStreamer');
-        
 		addEventListenerVideoPlay();
 
-
-<!--        MDemo = api.require('moduleDemo');-->
+		MDemo = api.require('moduleDemo');
 
 		render(headerH);
 
@@ -128,36 +126,37 @@
 	 */
 
 	function initPlayer(audio_url) {
-		console.log('初始化音频播放器')
+		console.log('初始化音频播放器');
 		// 开始播放
+//        alert(1234)
+        //alert(audioStreamer)
 		audioStreamer.openPlayer({
-			path: audio_url,
-		}, ret => {
+			path: audio_url
+		}, function (ret) {
 			if (ret.status) {
-
 				api.sendEvent({
 					name: 'audio_initPlay',
 					extra: {
-						duration: ret.duration,
+						duration: ret.duration
 					}
 				}); // 自定义事件发送音频时长
 				localStorage.setItem('local_audio_duration', ret.duration); // 将当前播放音频的时长保存到本地
 				localStorage.setItem('local_audio_status', 1); // 当前音频状态置为1(播放)
 
 				// 监听播放进度
-				audioStreamer.addProgressListener({}, ret1 => {
+				audioStreamer.addProgressListener({}, function (ret1) {
 					api.sendEvent({
 						name: 'audio_progress',
 						extra: {
-							progress: ret1.progress,
+							progress: ret1.progress
 						}
 					});
 
-					audioStreamer.getCurrentTime(ret2 => {
+					audioStreamer.getCurrentTime(function (ret2) {
 						api.sendEvent({
 							name: 'audio_currentTime',
 							extra: {
-								current: ret2.current,
+								current: ret2.current
 							}
 						});
 					});
@@ -166,17 +165,17 @@
 		});
 
 		// 播放状态监听
-		audioStreamer.addEventListener({}, ret => {
+		audioStreamer.addEventListener({}, function (ret) {
 			console.log(JSON.stringify(ret));
 			if (ret.state === 'finished') {
 				audioStreamer.removeProgressListener({}, function () {}); // 移除实时监听播放进度
 
 				api.sendEvent({
-					name: 'audio_finished',
+					name: 'audio_finished'
 				});
 			} else if (ret.state === 'pause') {
-				audioStreamer.getCurrentTime(ret2 => {
-					console.log('保存当前时间进度_' + ret2.current)
+				audioStreamer.getCurrentTime(function (ret2) {
+					console.log('保存当前时间进度_' + ret2.current);
 					localStorage.setItem('local_audio_current', ret2.current); // 保存当前播放进度(时间)
 				});
 				localStorage.setItem('local_audio_status', 0); // 当前音频状态置为0(暂停)
@@ -188,28 +187,28 @@
 
 	function onPause() {
 		// 暂停音频播放
-		console.log('暂停')
+		console.log('暂停');
 		audioStreamer.pause();
 
 		api.sendEvent({
-			name: 'audio_pause',
+			name: 'audio_pause'
 		});
 	}
 
 	function onResume(type) {
 		// 恢复播放
-		console.log('恢复播放')
+		console.log('恢复播放');
 		type ? audioStreamer.openPlayer() : audioStreamer.resume();
 
 		api.sendEvent({
-			name: 'audio_resume',
+			name: 'audio_resume'
 		});
 	}
 
 	function onStop() {
 		// 停止播放
 		// 切换音频url时, 只调用模块的openPlayer方法会导致模块错误执行成恢复播放, 所以先进行停止操作
-		console.log('停止播放')
+		console.log('停止播放');
 		audioStreamer.stop();
 	}
 

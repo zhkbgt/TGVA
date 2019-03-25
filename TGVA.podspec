@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'TGVA'
-  s.version          = '0.1.7'
+  s.version          = '0.1.8'
   s.summary          = 'big pod '
 
 # This description is used to generate tags and improve search results.
@@ -39,6 +39,9 @@ TODO: Add long description of the pod here. pod pod
    s.resource_bundles = {
      'TGVA' => ['TGVA/Assets/*']
    }
+
+  s.resources = "TGVA/Resource/*"
+
 
   s.vendored_frameworks = 'TGVA.framework'
 

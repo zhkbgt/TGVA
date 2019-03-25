@@ -50,7 +50,8 @@
           <div class="cell" id="comments">
             <div class="cell__title">精彩评论</div>
           </div>
-          <van-list class="comments list" :class="{'empty': !comments.length}" v-model="infiniteLoading" :offset="60" :finished="infiniteFinished" :immediate-check="false" @load="onLoad">
+          <van-list class="comments list" :class="{'empty': !comments.length}" v-model="infiniteLoading" :offset="60"
+            :finished="infiniteFinished" :immediate-check="false" @load="onLoad">
             <div v-for="(el, i) in comments" :key="i" class="comment__panel">
               <div class="comment__info">
                 <div class="comment__avatar">
@@ -60,7 +61,8 @@
                   <div class="comment__nickname">{{ el.user_nickname }}
                     <div class="comment__like" @click="fnCommentLike(i)">
                       <span v-if="el.like_number">{{ el.like_number }}</span>
-                      <div><img :src="el.is_like ? '../../icon/ico_like_red.png' : '../../icon/ico_thumbsup_white.png'"width="18"></div>
+                      <div><img :src="el.is_like ? '../../icon/ico_like_red.png' : '../../icon/ico_thumbsup_white.png'"
+                          width="18"></div>
                     </div>
                   </div>
                   <div class="comment__desc" @click="fnAnswerComment(i, el.id)">{{ el.comment }}</div>
@@ -69,8 +71,10 @@
               </div>
               <div class="comment__reply" v-if="el.answer_list.length">
                 <div v-for="(ans, j) in el.answer_list" :key="j" class="comment-ans__panel hairline">
-                  <div class="comment-ans__user" v-if="ans.user_nickname === ans.listen_nickname">{{ ans.user_nickname }}:</div>
-                  <div class="comment-ans__user" v-else>{{ ans.user_nickname }}<span>回复</span>{{ ans.listen_nickname }}:</div>
+                  <div class="comment-ans__user" v-if="ans.user_nickname === ans.listen_nickname">{{ ans.user_nickname
+                    }}:</div>
+                  <div class="comment-ans__user" v-else>{{ ans.user_nickname }}<span>回复</span>{{ ans.listen_nickname
+                    }}:</div>
                   <div class="comment-ans__content" @click="fnAnswerComment(i, el.id, ans.user_id)">{{ ans.answer }}</div>
                 </div>
               </div>
@@ -131,6 +135,19 @@
     return target;
   };
 
+  function _toConsumableArray(arr) {
+    if (Array.isArray(arr)) {
+      for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+        arr2[i] = arr[i];
+      }
+      return arr2;
+    } else {
+      return Array.from(arr);
+    }
+  }
+
+  'use strict';
+
   var data = {
     info: {},
     author: {},
@@ -143,8 +160,8 @@
     infiniteFinished: false,
     iconToggle: {
       like: false,
-      collect: false
-    } // 标志位, 控制点赞、收藏 icon的切换效果
+      collect: false // 标志位, 控制点赞、收藏 icon的切换效果
+    }
   };
   var playModule, header_h;
 
@@ -155,46 +172,9 @@
       fetchProps: function fetchProps() {
         this.video = _extends({}, api.pageParam.video);
         this.author = _extends({}, api.pageParam.video.author);
-        this.comments = [...api.pageParam.comments.comment_list];
+        this.comments = [].concat(_toConsumableArray(api.pageParam.comments.comment_list));
         this.infiniteFinished = Boolean(api.pageParam.comments.bottom_key);
       },
-      /* fetchData: function fetchData() {
-        var _this2 = this;
-
-        var data = {
-            title: '后半生，致自己（透彻感悟）',
-            simple: '风的季节初见初恋才能带你飞，才能打飞机纯牛奶曾多次地方能差点看成吗吃，么，动沉迷成绩单寄出。',
-            cover: '../../image/thumb.jpg',
-            duration: 3600,
-            current: 0,
-            comments: 1,
-            like_num: 12,
-            is_like: 0,
-            is_collect: 0
-          },
-          data2 = {
-            avatar: '../../image/avatar.png',
-            user_name: '白菜说世界',
-            desc: '让眼睛休息一会儿，每天听5分钟，把该知道的新闻送到您的耳边。',
-            visit: 2504,
-            num: 25,
-            isFollowed: false
-          },
-          arr2 = [{
-            avatar: '../../image/avatar.png',
-            nickname: '茶多酚cdch',
-            comment: '复健科的九分裤进出口搭街坊考虑到积分科技地产kin侧附加费',
-            time: 1540283072,
-            is_like: true
-          }];
-
-        this.info = _extends({}, data);
-        // this.author = { ...data2
-        // };
-        arr2.forEach(function (el) {
-          _this2.comments.push(el);
-        });
-      }, */
       initPlayer: function initPlayer() {
         var _this = this;
         playModule = api.require('playModule');
@@ -203,7 +183,7 @@
           // background: 'http://192.168.0.108:8881/image/thumb2.jpg',
           background: _this.video.cover,
           isShowBottomBtn: true,
-          isMultiWindow: true,
+          isMultiWindow: true
         });
 
         playModule.play({
@@ -226,7 +206,7 @@
           isBackBtn: true,
           fullscreenMode: 'LANDSCAPE',
           isShowTimeLable: true,
-          isAutoPlay: true,
+          isAutoPlay: true
         }, function (ret, err) {
           if (ret) {
             console.log(JSON.stringify(ret));
@@ -242,7 +222,7 @@
           _this.fnCleanPlayer();
         });
 
-        console.log(api.systemType)
+        console.log(api.systemType);
         if (api.systemType === 'ios') {
           api.execScript({
             script: 'forbidSlidBackForIOS();'
@@ -252,7 +232,7 @@
             script: 'addEventListenerKeyback();'
           });
         }
-                   
+
         api.execScript({
           script: 'addEventListenerMenu();'
         });
@@ -288,6 +268,8 @@
         }, 100);
       },
       onLoad: function onLoad() {
+        var _this2 = this;
+
         // 根据分页获取视频评论列表
         this.page++;
 
@@ -297,13 +279,13 @@
           page: this.page,
           page_count: this.pageCount,
           type: 1
-        }, res => {
-          res.comment_list.forEach(el => {
-            this.comments.push(el);
+        }, function (res) {
+          res.comment_list.forEach(function (el) {
+            _this2.comments.push(el);
           });
 
-          this.infiniteLoading = false; // 控制加载结束
-          if (res.bottom_key) this.infiniteFinished = true; // 已是最后一页
+          _this2.infiniteLoading = false; // 控制加载结束
+          if (res.bottom_key) _this2.infiniteFinished = true; // 已是最后一页
         }, {
           hideLoading: true
         });
@@ -320,16 +302,16 @@
         });
       },
       fnPausePlayer: function fnPausePlayer() {
-        playModule.pause(function(ret, err) {
-          console.log('播放器暂停')
+        playModule.pause(function (ret, err) {
+          console.log('播放器暂停');
           console.log(JSON.stringify(ret));
         });
       },
       fnCleanPlayer: function fnCleanPlayer() {
         // 模块需要调用cleanPlayers方法，再关闭页面，否则会在后台驻留播放
         playModule.cleanPlayers(function (ret, err) {
-          console.log('播放器清理')
-          console.log(JSON.stringify(ret))
+          console.log('播放器清理');
+          console.log(JSON.stringify(ret));
           api.closeWin(); // 关闭window
         });
       },
@@ -337,21 +319,25 @@
         this.video.is_follow_author ? this.onCancelFollow() : this.onFollow();
       },
       onFollow: function onFollow() {
+        var _this4 = this;
+
         $ajax_post('appvideo/follow_video_author', {
           author_id: this.video.author.id,
           user_id: 100000
-        }, () => {
-          this.video.is_follow_author = 1;
+        }, function () {
+          _this4.video.is_follow_author = 1;
         }, {
           hideLoading: true
         });
       },
       onCancelFollow: function onCancelFollow() {
+        var _this9 = this;
+
         $ajax_post('appvideo/cancle_follow_video_author', {
           author_id: this.video.author.id,
           user_id: 100000
-        }, () => {
-          this.video.is_follow_author = 0;
+        }, function () {
+          _this9.video.is_follow_author = 0;
         }, {
           hideLoading: true
         });
@@ -375,7 +361,6 @@
           setTimeout(function () {
             _this5.iconToggle.like = false;
           }, 150);
-
         }, {
           hideLoading: true
         });
@@ -443,31 +428,37 @@
         this.comments[i].is_like ? this.onCancelCommentLike(i) : this.onCommentLike(i);
       },
       onCommentLike: function onCommentLike(i) {
+        var _this10 = this;
+
         $ajax_post('appcomment/comment_like', {
           user_id: 100000,
           comment_id: this.comments[i].id
-        }, () => {
-          this.comments[i].is_like = 1;
-          this.comments[i].like_number++;
+        }, function () {
+          _this10.comments[i].is_like = 1;
+          _this10.comments[i].like_number++;
         }, {
           hideLoading: true
         });
       },
       onCancelCommentLike: function onCancelCommentLike(i) {
+        var _this11 = this;
+
         $ajax_post('appcomment/cancle_comment_like', {
           user_id: 100000,
           comment_id: this.comments[i].id
-        }, () => {
-          this.comments[i].is_like = 0;
-          this.comments[i].like_number--;
+        }, function () {
+          _this11.comments[i].is_like = 0;
+          _this11.comments[i].like_number--;
         }, {
           hideLoading: true
         });
       },
-      fnAnswerComment(index, cId, lId = 0) {
-        console.log(index)
-        console.log(cId)
-        console.log(lId)
+      fnAnswerComment: function fnAnswerComment(index, cId) {
+        var lId = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+
+        console.log(index);
+        console.log(cId);
+        console.log(lId);
         var _this = this;
         api.actionSheet({
           cancelTitle: '取消',
@@ -496,19 +487,20 @@
                 from: api.frameName,
                 callback: 'fnReplyCommentCallback',
                 callbackParams: {
-                  index
+                  index: index
                 }
               }
             });
           }
         });
       },
-      fnReplyCommentCallback(el, params) {
-        console.log(JSON.stringify(el))
-        console.log(JSON.stringify(params))
+      fnReplyCommentCallback: function fnReplyCommentCallback(el, params) {
+        console.log(JSON.stringify(el));
+        console.log(JSON.stringify(params));
         this.comments[params.index].answer_list.push(el);
         this.video.comments++;
       },
+
       fnSubmitCommentCallback: function fnSubmitCommentCallback(el) {
         console.log(JSON.stringify(el));
         this.comments.unshift(el);
@@ -553,15 +545,15 @@
         });
       },
       toVideoAuthor: function toVideoAuthor(id) {
-        console.log(id)
-        this.fnPausePlayer();    // 跳转前先暂停播放
+        console.log(id);
+        this.fnPausePlayer(); // 跳转前先暂停播放
 
         api.openWin({
           name: 'video_author_win',
           url: '../video_author/video_author_win.html',
           bounces: false,
           pageParam: {
-            id
+            id: id
           }
         });
       }

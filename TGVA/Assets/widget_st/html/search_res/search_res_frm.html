@@ -8,9 +8,9 @@
   <link rel="stylesheet" type="text/css" href="../../css/aui/aui.css" />
   <link rel="stylesheet" href="../../css/custom/common.css">
   <link rel="stylesheet" href="../../css/custom/page/search-res.css">
-	<link rel="stylesheet" href="../../script/vant/index.css">
-	<script src="../../script/vue/vue.js"></script>
-	<script src="../../script/vant/vant.min.js"></script>
+  <link rel="stylesheet" href="../../script/vant/index.css">
+  <script src="../../script/vue/vue.js"></script>
+  <script src="../../script/vant/vant.min.js"></script>
 </head>
 
 <body>
@@ -70,7 +70,7 @@
       <!-- END -->
       <!-- 下拉刷新组件-音频列表 -->
       <van-pull-refresh class="tab-pane" v-show="active === 1" v-model="refreshLoadingAudios" @refresh="onRefresh">
-        <div v-for="(el, i) in audios" :key="i" class="audio__panel hairline">
+        <div v-for="(el, i) in audios" :key="i" class="audio__panel hairline" @click="toAudioDetail(el.id)">
           <div class="audio__title">{{ el.title }}</div>
           <div class="audio__params">
             <div><img src="../../icon/icon_cd.png" width="28"></div>
@@ -115,38 +115,11 @@
     }],
     keywords: '',
     // news: [],
-    videos: [/* {
-      cover: '../../image/default.png',
-      title: '猜测出对策传动侧而发愁岑成交额可乐鸡翅看了看猜测出对策传动侧而发愁岑成交额可乐鸡翅看了看',
-      timestamp: 1541466215,
-      comments: 10
-    }, {
-      cover: '../../image/default.png',
-      title: '猜测出对策传动侧而发愁岑成交额可乐鸡翅看了看',
-      timestamp: 1541466215,
-      comments: 0
-    }, {
-      cover: '../../image/default.png',
-      title: '猜测出对策传动侧而发愁岑成交额可乐鸡翅看了看',
-      timestamp: 1541466215,
-      comments: 10
-    } */],
-    audios: [/* {
-      title: '谁偷了我的阳光彩虹小白马',
-      timestamp: 1541466215,
-    }, {
-      title: '谁偷了我的阳光彩虹小白马',
-      timestamp: 1541466215,
-    }, {
-      title: '谁偷了我的阳光彩虹小白马',
-      timestamp: 1541466215,
-    } */],
-    isLoaded: [
-      false,
-      false
-    ],    // index对应tabs各项，记录该项对应内容是否搜索过，onTabchange时使用
+    videos: [],
+    audios: [],
+    isLoaded: [false, false], // index对应tabs各项，记录该项对应内容是否搜索过，onTabchange时使用
     refreshLoadingVideos: false,
-    refreshLoadingAudios: false,
+    refreshLoadingAudios: false
   };
 
   var vm = new Vue({
@@ -158,14 +131,16 @@
         console.log(this.keywords);
       },
       fetchData: function fetchData() {
+        var _this = this;
+
         var type = this.tabs[this.active].value;
 
         $ajax_post('appvasearch/search', {
           user_id: 100000,
           content: this.keywords,
-          type
-        }, res => {
-          this.active ? this.fnSetAudios(res) : this.fnSetVideos(res);
+          type: type
+        }, function (res) {
+          _this.active ? _this.fnSetAudios(res) : _this.fnSetVideos(res);
         }, {
           hideLoading: true
         });
@@ -173,20 +148,20 @@
       init: function init() {
         this.fetchProps();
 
-        this.refreshLoadingVideos = true;    // 页面初始加载，默认搜索视频，开启下拉刷新效果
+        this.refreshLoadingVideos = true; // 页面初始加载，默认搜索视频，开启下拉刷新效果
         this.fetchData();
       },
       fnSetVideos: function fnSetVideos(res) {
-        this.refreshLoadingVideos = false;    // 关闭下拉刷新效果
-        this.isLoaded[0] = true;    // 该项已搜索，切换nav不调用搜索
+        this.refreshLoadingVideos = false; // 关闭下拉刷新效果
+        this.isLoaded[0] = true; // 该项已搜索，切换nav不调用搜索
 
-        this.videos = [...res.info_list];
+        this.videos = [].concat(_toConsumableArray(res.info_list));
       },
       fnSetAudios: function fnSetAudios(res) {
-        this.refreshLoadingAudios = false;    // 关闭下拉刷新效果
-        this.isLoaded[1] = true;    // 该项已搜索，切换nav不调用搜索
+        this.refreshLoadingAudios = false; // 关闭下拉刷新效果
+        this.isLoaded[1] = true; // 该项已搜索，切换nav不调用搜索
 
-        this.audios = [...res.info_list];
+        this.audios = [].concat(_toConsumableArray(res.info_list));
       },
       onTabchange: function onTabchange(index) {
         this.active = index;
@@ -196,40 +171,51 @@
         this.fetchData();
       },
       toVideoDetail: function toVideoDetail(id) {
-				console.log(id);
-				api.openWin({
-					name: 'video_' + id + '_detail_win',
-					url: '../video_detail/video_detail_win.html',
-					bounces: false,
-					pageParam: {
-						id: id,
-						isBanner: 0
-					}
-				});
-			},
+        console.log(id);
+        api.openWin({
+          name: 'video_' + id + '_detail_win',
+          url: '../video_detail/video_detail_win.html',
+          bounces: false,
+          pageParam: {
+            id: id,
+            isBanner: 0
+          }
+        });
+      },
+      toAudioDetail: function toAudioDetail(id) {
+        console.log(id);
+        // 当音频详情页面已存在，又再次打开时，发送事件
+        api.sendEvent({
+          name: 'openAudio',
+          extra: {
+            id: id
+          }
+        });
+
+        api.openWin({
+          name: 'audio_detail_win',
+          url: '../audio_detail/audio_detail_win.html',
+          bounces: false,
+          pageParam: {
+            id: id,
+            from: api.winName
+          }
+        });
+      }
     }
   });
 
   apiready = function apiready() {
     vm.init();
-    
+
     var navH = $api.offset(document.querySelector('#tab')).h;
     var pullRefreshWrap = document.querySelectorAll('.van-pull-refresh__track');
 
-    pullRefreshWrap.forEach(el => {
+    pullRefreshWrap.forEach(function (el) {
       // $api.css(el, 'min-height: calc(' + api.frameHeight + 'px - ' + navH + 'px);');
-		  $api.css(el, 'min-height: calc(667px - ' + navH + 'px);');
+      $api.css(el, 'min-height: calc(667px - ' + navH + 'px);');
     });
   };
-
-  setTimeout(function () {
-		if (typeof api === 'undefined') {
-			api = {
-				pageParam: {}
-			};
-			apiready();
-		}
-	}, 500);
 </script>
 
 </html>

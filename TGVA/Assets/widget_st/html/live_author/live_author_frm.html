@@ -58,7 +58,8 @@
         <div class="author__btn" @click="fnFollow"><img :src="author.is_follow_author ? '../../icon/btn_followed_white.png' : '../../icon/btn_follow_white.png'"></div>
       </div>
     </section>
-    <van-list class="videos list" v-model="infiniteLoading" :finished="infiniteFinished" :immediate-check="false" :offset="50" @load="onLoad">
+    <van-list class="videos list" v-model="infiniteLoading" :finished="infiniteFinished" :immediate-check="false"
+      :offset="50" @load="onLoad">
       <div v-for="(el, i) in lives" :key="i" class="video__panel" @click="toLiveDetail(el.id)">
         <div class="video__cover">
           <!-- <img :src="el.cover" :height="videoHeight"> -->
@@ -67,7 +68,8 @@
             <img src="../../icon/btn_play.png">
           </div>
           <div class="video__status">
-            <div v-if="el.status === 0"><span style="color: rgb(3, 219, 211);">预告</span> {{ el.start_at | predict-time }}</div>
+            <div v-if="el.status === 0"><span style="color: rgb(3, 219, 211);">预告</span> {{ el.start_at | predict-time
+              }}</div>
             <div v-else-if="el.status === 1"><span>进行中</span></div>
             <div v-else-if="el.status === 2"><span>已结束</span></div>
             <div v-else-if="el.status === 3"><span style="color: #e7c040;">回放</span></div>
@@ -103,6 +105,17 @@
     return target;
   };
 
+  function _toConsumableArray(arr) {
+    if (Array.isArray(arr)) {
+      for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+        arr2[i] = arr[i];
+      }
+      return arr2;
+    } else {
+      return Array.from(arr);
+    }
+  }
+
   var data = {
     author: {},
     lives: [],
@@ -111,7 +124,7 @@
     refreshLoading: false,
     infiniteLoading: false,
     infiniteFinished: false,
-    videoHeight: 120,    // 视频列表，封面图默认高度
+    videoHeight: 120 // 视频列表，封面图默认高度
   };
 
   var vm = new Vue({
@@ -119,9 +132,8 @@
     data: data,
     methods: {
       fetchProps: function fetchProps() {
-        this.author = { ...api.pageParam.author
-        };
-        this.lives = [...api.pageParam.lives.video_lives];
+        this.author = _extends({}, api.pageParam.author);
+        this.lives = [].concat(_toConsumableArray(api.pageParam.lives.video_lives));
         this.infiniteFinished = Boolean(api.pageParam.lives.bottom_key);
       },
       init: function init() {
@@ -142,64 +154,70 @@
         }
       },
       onLoad: function onLoad() {
+        var _this = this;
+
         this.page++;
 
         $ajax_post('appvideo/author_video_live_by_page', {
           author_id: this.author.id,
           page: this.page,
-          page_count: this.pageCount,
-        }, res => {
-          res.lives.forEach(el => {
-            this.lives.push(el);
+          page_count: this.pageCount
+        }, function (res) {
+          res.lives.forEach(function (el) {
+            _this.lives.push(el);
           });
 
-          this.infiniteLoading = false;
-          if (res.bottom_key) this.infiniteFinished = true; 
+          _this.infiniteLoading = false;
+          if (res.bottom_key) _this.infiniteFinished = true;
         }, {
           hideLoading: true
-        })
+        });
       },
       fnFollow: function fnFollow() {
         this.author.is_follow_author ? this.onCancelFollow() : this.onFollow();
       },
       onFollow: function onFollow() {
+        var _this2 = this;
+
         $ajax_post('appvideo/follow_video_author', {
           author_id: this.author.id,
           user_id: 100000
-        }, () => {
-          this.author.is_follow_author = 1;
+        }, function () {
+          _this2.author.is_follow_author = 1;
         }, {
           hideLoading: true
         });
       },
       onCancelFollow: function onCancelFollow() {
+        var _this3 = this;
+
         $ajax_post('appvideo/cancle_follow_video_author', {
           author_id: this.author.id,
           user_id: 100000
-        }, () => {
-          this.author.is_follow_author = 0;
+        }, function () {
+          _this3.author.is_follow_author = 0;
         }, {
           hideLoading: true
         });
       },
       toLiveDetail: function toLiveDetail(id) {
         console.log(id);
-				api.openWin({
-					name: 'live_' + id + '_detail_win',
-					url: '../live_detail/live_detail_win.html',
-					bounces: false,
-					pageParam: {
-						id: id,
-						isBanner: 0
-					}
-				});
-      },
+        api.openWin({
+          name: 'live_' + id + '_detail_win',
+          url: '../live_detail/live_detail_win.html',
+          bounces: false,
+          pageParam: {
+            id: id,
+            isBanner: 0
+          }
+        });
+      }
     },
-    mounted() {
-			this.videoHeight = document.body.clientWidth * 0.57;
-      console.log(this.videoHeight)
+    mounted: function mounted() {
+      this.videoHeight = document.body.clientWidth * 0.57;
+      console.log(this.videoHeight);
       document.addEventListener('scroll', this.handleScroll);
-    },
+    }
   });
 
   apiready = function apiready() {
@@ -210,15 +228,6 @@
   function onCloseWin() {
     api.closeWin();
   }
-
-  setTimeout(function () {
-    if (typeof api === 'undefined') {
-      api = {
-        pageParam: {}
-      };
-      apiready();
-    }
-  }, 500);
 </script>
 
 </html>

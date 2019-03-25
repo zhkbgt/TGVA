@@ -110,17 +110,17 @@
         // 限制最多5条记录
         if (this.wordHistory.length > 5) this.wordHistory.pop();
 
-        window.localStorage.setItem('search_words', this.wordHistory.join('|'));
+        window.localStorage.setItem('va_search_words', this.wordHistory.join('|'));
       },
       getKeywordsHistory: function getKeywordsHistory() {
-        // var list = $api.getStorage('search_words');
-        var list = window.localStorage.getItem('search_words');
+        // var list = $api.getStorage('va_search_words');
+        var list = window.localStorage.getItem('va_search_words');
         // console.log(list.split('|'))
         return list ? list.split('|') : [];
       },
       removeHistory: function removeHistory(index) {
         this.wordHistory.splice(index, 1);
-        window.localStorage.setItem('search_words', this.wordHistory.join('|'));
+        window.localStorage.setItem('va_search_words', this.wordHistory.join('|'));
       },
       clearHistory: function clearHistory() {
         var _this = this;
@@ -133,8 +133,8 @@
           }, function (ret, err) {
             if (ret.buttonIndex == 1) {
               _this.wordHistory = [];
-              // $api.setStorage('search_words', '');
-              window.localStorage.setItem('search_words', '');
+              // $api.setStorage('va_search_words', '');
+              window.localStorage.setItem('va_search_words', '');
             }
           });
         }

@@ -50,10 +50,12 @@
               </a>
               <div class="aui-title"></div>
               <a class="aui-btn aui-pull-right" tapmode @click="openShareFrm">
-                <img src="../../icon//ico_export_white.png" width="18">
+                <img src="../../icon/ico_export_white.png" width="18">
               </a>
             </header>
-            <div v-if="!isPrepare"><van-loading type="spinner" color="white" size="48px" /></div> 
+            <div v-if="!isPrepare">
+              <van-loading type="spinner" color="white" size="48px" />
+            </div>
             <img v-else src="../../image/img_play.png" width="60">
           </div>
         </div>
@@ -128,7 +130,8 @@
             <div class="cell__title dark">精彩评论</div>
           </div>
           <!-- <div class="comments list" :class="{'empty': !comments.length}"> -->
-          <van-list class="comments list" :class="{'empty': !comments.list.length}" v-model="comments.infiniteLoading" :offset="60" :finished="comments.infiniteFinished" :immediate-check="false" @load="fnCommentsLoad">
+          <van-list class="comments list" :class="{'empty': !comments.list.length}" v-model="comments.infiniteLoading"
+            :offset="60" :finished="comments.infiniteFinished" :immediate-check="false" @load="fnCommentsLoad">
             <div v-for="(el, i) in comments.list" :key="i" class="comment__panel">
               <div class="comment__info">
                 <div class="comment__avatar">
@@ -139,7 +142,7 @@
                   <div class="comment__nickname dark">{{ el.user_nickname }}
                     <div class="comment__like" @click="fnCommentLike(i)">
                       <span v-if="el.like_number">{{ el.like_number }}</span>
-                      <div><img :src="el.is_like ? '../../icon/ico_like_red.png' : '../../icon/ico_like.png'"width="18"></div>
+                      <div><img :src="el.is_like ? '../../icon/ico_like_red.png' : '../../icon/ico_like.png'" width="18"></div>
                     </div>
                   </div>
                   <div class="comment__desc dark" @click="fnAnswerComment(i, el.id)">{{ el.comment }}</div>
@@ -148,8 +151,10 @@
               </div>
               <div class="comment__reply" v-if="el.answer_list.length">
                 <div v-for="(ans, j) in el.answer_list" :key="j" class="comment-ans__panel hairline">
-                  <div class="comment-ans__user" v-if="ans.user_nickname === ans.listen_nickname">{{ ans.user_nickname }}:</div>
-                  <div class="comment-ans__user" v-else>{{ ans.user_nickname }}<span>回复</span>{{ ans.listen_nickname }}:</div>
+                  <div class="comment-ans__user" v-if="ans.user_nickname === ans.listen_nickname">{{ ans.user_nickname
+                    }}:</div>
+                  <div class="comment-ans__user" v-else>{{ ans.user_nickname }}<span>回复</span>{{ ans.listen_nickname
+                    }}:</div>
                   <div class="comment-ans__content" @click="fnAnswerComment(i, el.id, ans.user_id)">{{ ans.answer }}</div>
                 </div>
               </div>
@@ -159,7 +164,7 @@
               <img src="../../icon/no_comments.png" width="180">我们需要您的神评论
             </div>
             <div v-if="comments.list.length && comments.infiniteFinished" class="load-more">-- 没有更多了 --</div>
-          <!-- </div> -->
+            <!-- </div> -->
           </van-list>
         </div>
         <footer class="info__action-bar" :class="{'scrolled': isFold}">
@@ -208,20 +213,27 @@
     return target;
   };
 
+  function _toConsumableArray(arr) {
+    if (Array.isArray(arr)) {
+      for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+        arr2[i] = arr[i];
+      }
+      return arr2;
+    } else {
+      return Array.from(arr);
+    }
+  }
+
   var data = {
     audio: {},
-    // audio: {"audio_detail":{"id":1,"name":"我是第1条音频","audio_url":"http://www.ytmp3.cn/down/55078.mp3","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7","author":{"id":3,"user_name":"界面Vnews","avatar":"https://img.jiemian.com/userface/210x210/644/234/117763763-1526269907.jpg","self_introduce":"皮一下很开心"},"star":0,"comments":0,"collect":0,"is_follow":1,"selections":[{"id":1,"name":"我是第1条音频","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7"},{"id":2,"name":"我是第2条音频","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7"},{"id":3,"name":"我是第3条音频","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7"},{"id":4,"name":"我是第4条音频","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7"},{"id":5,"name":"我是第5条音频","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7"},{"id":6,"name":"我是第6条音频","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7"},{"id":7,"name":"我是第7条音","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7"},{"id":8,"name":"我是第8条音频","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7"},{"id":9,"name":"我是第9条音频","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7"},{"id":10,"name":"我是第10条音频","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7"}],"is_like":0,"is_collect":0}},
     author: {},
-    // author: {"id":3,"user_name":"界面Vnews","avatar":"https://img.jiemian.com/userface/210x210/644/234/117763763-1526269907.jpg","self_introduce":"皮一下很开心"},
     list: [],
-    // list: [{"id":1,"name":"我是第1条音频","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7"},{"id":2,"name":"我是第2条音频","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7"},{"id":3,"name":"我是第3条音频","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7"},{"id":4,"name":"我是第4条音频","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7"},{"id":5,"name":"我是第5条音频","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7"},{"id":6,"name":"我是第6条音频","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7"},{"id":7,"name":"我是第7条音","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7"},{"id":8,"name":"我是第8条音频","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7"},{"id":9,"name":"我是第9条音频","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7"},{"id":10,"name":"我是第10条音频","cover":"https://tse1-mm.cn.bing.net/th?id=OIP.toMC29LPMDbOL4nHD7vZlwHaEV&w=300&h=175&c=7&o=5&pid=1.7"}],
     comments: {
       list: [],
-      // list: [{"id":54,"comment_id":1,"type":2,"user_id":101,"remove":0,"comment":"潜龙勿用","timestamp":1542700760,"follow_number":0,"is_answer":0,"is_like":1,"date":"2018-11-20 15:59","like_number":1,"user_nickname":"zzz","head_pic":"https://tse2-mm.cn.bing.net/th?id=OIP.AjhwAhOlGpcfd59wnsYyXwHaHa&w=215&h=215&c=7&o=5&pid=1.7","answer_list":[{"id":169,"comment_id":54,"user_id":101,"listen_id":101,"answer":"erewrqwerqw","create_at":1542720037,"remove":0,"user_nickname":"zzz","listen_nickname":"zzz"}]}],
       page: 1,
       pageCount: 10,
       infiniteLoading: false,
-      infiniteFinished: false,
+      infiniteFinished: false
     },
     // isShowPlayList: false,
     isFold: false, // 是否已是折叠状态
@@ -233,19 +245,20 @@
     isRefoldable: true, // 是否可复原
     iconToggle: {
       like: false,
-      collect: false,
+      collect: false
     }, // 标志位, 控制点赞、收藏 icon的切换效果
-    isReloadPlayer: false,    // 是否重载播放器
+    isReloadPlayer: false, // 是否重载播放器
     duration: {
       current: 0,
-      total: 0,
-    },    // 播放时长(均初始化为0，待数据加载完成后根据audioStreamer模块openPlayer方法返回总时长再回写)
-    progress: 0,    // 播放进度
-    isPrepare: false,    // 当前音频是否准备完成（可播放）
-    isPlaying: false,    // 当前音频是否在播放
-    isFinished: false,    // 当前音频是否播放结束
+      total: 0
+    }, // 播放时长(均初始化为0，待数据加载完成后根据audioStreamer模块openPlayer方法返回总时长再回写)
+    progress: 0, // 播放进度
+    isPrepare: false, // 当前音频是否准备完成（可播放）
+    isPlaying: false, // 当前音频是否在播放
+    isFinished: false // 当前音频是否播放结束
   };
-  var container = null, audioStreamer = null;
+  var container = null,
+    audioStreamer = null;
 
   var vm = new Vue({
     el: '#app',
@@ -260,15 +273,15 @@
     },
     methods: {
       fetchProps: function fetchProps() {
-        this.audio = {...api.pageParam.data};
-        this.list = [...api.pageParam.data.selections];
-        this.author = {...api.pageParam.data.author};
-        this.comments.list = [...api.pageParam.comments.comment_list];
+        this.audio = _extends({}, api.pageParam.data);
+        this.list = [].concat(_toConsumableArray(api.pageParam.data.selections));
+        this.author = _extends({}, api.pageParam.data.author);
+        this.comments.list = [].concat(_toConsumableArray(api.pageParam.comments.comment_list));
         this.comments.infiniteFinished = Boolean(api.pageParam.comments.bottom_key);
         this.isReloadPlayer = api.pageParam.reload;
       },
       initLayout: function initLayout() {
-        var screenH = document.documentElement.clientHeight;    // 当前窗口高度
+        var screenH = document.documentElement.clientHeight; // 当前窗口高度
 
         var playerDom = document.querySelector('section.player');
         var infoDom = document.querySelector('section.info');
@@ -284,29 +297,24 @@
       /* initPlayer: function initPlayer() {
         // 初始化播放器，调用audioStreamer模块
         audioStreamer = api.require('audioStreamer');
-
-        // 开始播放
+         // 开始播放
         audioStreamer.openPlayer({
             path: this.audio.audio_url,
         }, ret => {
           if (ret.status) {
             // console.log(JSON.stringify(ret));
             this.duration.total = ret.duration;    // 获取音频时长
-
-            this.isPlaying = true;
-
-            // 监听播放进度
+             this.isPlaying = true;
+             // 监听播放进度
             audioStreamer.addProgressListener({}, ret1 => {
               this.progress = ret1.progress;    // 获取播放进度
-
-              audioStreamer.getCurrentTime(ret2 => {
+               audioStreamer.getCurrentTime(ret2 => {
                 this.duration.current = ret2.current;    //
               });
             });
           }
         });
-
-        // 播放状态监听
+         // 播放状态监听
         audioStreamer.addEventListener({
         }, ret => {
           // console.log(JSON.stringify(ret));
@@ -318,16 +326,17 @@
         });
       }, */
       initAudioPlayer: function initAudioPlayer() {
-                   console.log('是否重载音频播放器_' + this.isReloadPlayer)
+        console.log('是否重载音频播放器_' + this.isReloadPlayer);
         if (this.isReloadPlayer) {
           api.execScript({
-            name: 'root',
+            name: 'index',
             script: 'onStop();'
           });
-          var script = 'initPlayer(' + JSON.stringify(this.audio.audio_url) + ');'
+
+          var script = 'initPlayer(' + JSON.stringify(this.audio.audio_url) + ');';
           api.execScript({
-            name: 'root',
-            script,
+            name: 'index',
+            script: script
           });
         } else {
           // 音频播放途中打开(url不改变), 根据本地存储的当前音频状态，修改状态标识
@@ -341,55 +350,57 @@
             this.isPlaying = true;
           } else {
             this.isPlaying = false;
-            
+
             this.duration.current = Number(localStorage.getItem('local_audio_current'));
-            this.progress = Math.floor((this.duration.current / this.duration.total) * 100);    // 读取当前进度和总时长后计算出百分比进度(向下取整)
+            this.progress = Math.floor(this.duration.current / this.duration.total * 100); // 读取当前进度和总时长后计算出百分比进度(向下取整)
           }
         }
       },
       initAudioEventListener: function initAudioEventListener() {
+        var _this2 = this;
+
         // 开始监听音频播放相关的一系列自定义事件
 
         // 初始播放
         api.addEventListener({
           name: 'audio_initPlay'
-        }, ret => {
-          this.audioInitPlayCallback(ret.value.duration);
+        }, function (ret) {
+          _this2.audioInitPlayCallback(ret.value.duration);
         });
 
         // 播放进度变化
         api.addEventListener({
           name: 'audio_progress'
-        }, ret => {
-          this.audioProgressCallback(ret.value.progress);
+        }, function (ret) {
+          _this2.audioProgressCallback(ret.value.progress);
         });
 
         // 当前播放事件变化
         api.addEventListener({
           name: 'audio_currentTime'
-        }, ret => {
-          this.audioCurrentTime(ret.value.current);
+        }, function (ret) {
+          _this2.audioCurrentTime(ret.value.current);
         });
 
         // 播放结束
         api.addEventListener({
           name: 'audio_finished'
-        }, ret => {
-          this.audioFinishedCallback();
+        }, function (ret) {
+          _this2.audioFinishedCallback();
         });
 
         // 暂停
         api.addEventListener({
           name: 'audio_pause'
-        }, ret => {
-          this.audioPauseCallback();
+        }, function (ret) {
+          _this2.audioPauseCallback();
         });
 
         // 恢复播放
         api.addEventListener({
           name: 'audio_resume'
-        }, ret => {
-          this.audioResumeCallback();
+        }, function (ret) {
+          _this2.audioResumeCallback();
         });
       },
       init: function init() {
@@ -399,43 +410,44 @@
         this.initAudioPlayer();
         this.initAudioEventListener();
       },
-      audioInitPlayCallback(duration) {
+      audioInitPlayCallback: function audioInitPlayCallback(duration) {
         // 音频开始播放回调（初始化时）
         this.duration.total = duration;
         this.isPrepare = true;
         this.isPlaying = true;
       },
-      audioFinishedCallback() {
+      audioFinishedCallback: function audioFinishedCallback() {
         // 音频播放结束，修改状态标识
-				this.isPlaying = false;
+        this.isPlaying = false;
         this.isFinished = true;
       },
-      audioProgressCallback(progress) {
+      audioProgressCallback: function audioProgressCallback(progress) {
         this.progress = progress; // 获取播放进度
       },
-      audioCurrentTime(time) {
+      audioCurrentTime: function audioCurrentTime(time) {
         this.duration.current = time;
       },
-      audioPauseCallback() {
-		    this.isPlaying = false;
+      audioPauseCallback: function audioPauseCallback() {
+        this.isPlaying = false;
       },
-      audioResumeCallback() {
+      audioResumeCallback: function audioResumeCallback() {
         this.isPlaying = true;
       },
+
       fnPlay: function fnPlay() {
         this.isPlaying ? this.onPause() : this.onPlay();
       },
       onPlay: function onPlay() {
-        if (!this.isPrepare) return;     // 音频未准备好不执行后续播放逻辑
+        if (!this.isPrepare) return; // 音频未准备好不执行后续播放逻辑
 
         if (this.isFinished) {
           // 若音频播放结束，重新播放 ---- （暂按此处理）
           this.isPrepare = false;
-          
-          var script = 'initPlayer(' + JSON.stringify(this.audio.audio_url) + ');'
+
+          var script = 'initPlayer(' + JSON.stringify(this.audio.audio_url) + ');';
           api.execScript({
-            name: 'root',
-            script,
+            name: 'index',
+            script: script
           });
 
           return;
@@ -444,13 +456,13 @@
         // 播放音频，根据Android和iOS进行不同处理（audioStreamer模块规定）
         var system = api.systemType === 'android' ? 1 : 0;
         api.execScript({
-          name: 'root',
+          name: 'index',
           script: 'onResume(' + system + ');'
         });
       },
       onPause: function onPause() {
         api.execScript({
-          name: 'root',
+          name: 'index',
           script: 'onPause();'
         });
       },
@@ -459,7 +471,7 @@
         else api.toast({
           msg: '已经是第一首了~',
           duration: 1500,
-          location: 'middle',
+          location: 'middle'
         });
       },
       fnPlayNext: function fnPlayNext() {
@@ -467,13 +479,13 @@
         else api.toast({
           msg: '暂无更多音频~',
           duration: 1500,
-          location: 'middle',
+          location: 'middle'
         });
       },
       fnSwitchUrl: function fnSwitchUrl(id) {
         // 切换音频
         api.execScript({
-          script:'switchAudio('+id+');'
+          script: 'switchAudio(' + id + ');'
         });
       },
       fnFoldTouchstart: function fnFoldTouchstart(event) {
@@ -583,6 +595,8 @@
         // console.log(scrolly);
       },
       fnCommentsLoad: function fnCommentsLoad() {
+        var _this3 = this;
+
         this.comments.page++;
 
         $ajax_post('appcomment/comment_list', {
@@ -590,36 +604,42 @@
           id: this.audio.id,
           page: this.comments.page,
           page_count: this.comments.pageCount,
-          type: 2,
-        }, res => {
-          this.comments.list.push(...res.comment_list);
+          type: 2
+        }, function (res) {
+          var _comments$list;
 
-          this.comments.infiniteLoading = false;
-          if (res.bottom_key) this.comments.infiniteFinished = true;
+          (_comments$list = _this3.comments.list).push.apply(_comments$list, _toConsumableArray(res.comment_list));
+
+          _this3.comments.infiniteLoading = false;
+          if (res.bottom_key) _this3.comments.infiniteFinished = true;
         }, {
           hideLoading: true
         });
       },
       fnFollow: function fnFollow() {
-        console.log(this.audio.is_follow)
+        console.log(this.audio.is_follow);
         this.audio.is_follow ? this.onCancelFollow() : this.onFollow();
       },
       onFollow: function onFollow() {
+        var _this4 = this;
+
         $ajax_post('appaudio/follow_audio_author', {
           user_id: 100000,
           author_id: this.author.id
-        }, () => {
-          this.audio.is_follow = 1;
+        }, function () {
+          _this4.audio.is_follow = 1;
         }, {
           hideLoading: true
         });
       },
       onCancelFollow: function onCancelFollow() {
+        var _this5 = this;
+
         $ajax_post('appaudio/cancle_follow_audio_author', {
           user_id: 100000,
           author_id: this.author.id
-        }, () => {
-          this.audio.is_follow = 0;
+        }, function () {
+          _this5.audio.is_follow = 0;
         }, {
           hideLoading: true
         });
@@ -631,31 +651,35 @@
         this.audio.is_like ? this.onCancelLike() : this.onLike();
       },
       onLike: function onLike() {
+        var _this6 = this;
+
         $ajax_post('applike/like', {
           user_id: 100000,
           id: this.audio.id,
-          type: 2,
-        }, () => {
-          this.audio.is_like = 1;
-          this.audio.star++;
+          type: 2
+        }, function () {
+          _this6.audio.is_like = 1;
+          _this6.audio.star++;
 
           // 点赞时icon切换效果控制
-          this.iconToggle.like = true;
-          setTimeout(() => {
-            this.iconToggle.like = false;
+          _this6.iconToggle.like = true;
+          setTimeout(function () {
+            _this6.iconToggle.like = false;
           }, 150);
         }, {
           hideLoading: true
         });
       },
       onCancelLike: function onCancelLike() {
+        var _this7 = this;
+
         $ajax_post('applike/cancle_like', {
           user_id: 100000,
           id: this.audio.id,
-          type: 2,
-        }, () => {
-          this.audio.is_like = 0;
-          this.audio.star--;
+          type: 2
+        }, function () {
+          _this7.audio.is_like = 0;
+          _this7.audio.star--;
         }, {
           hideLoading: true
         });
@@ -664,29 +688,33 @@
         this.audio.is_collect ? this.onCancelCollect() : this.onCollect();
       },
       onCollect: function onCollect() {
+        var _this8 = this;
+
         $ajax_post('appcollect/collect', {
           user_id: 100000,
           id: this.audio.id,
-          type: 2,
-        }, () => {
-          this.audio.is_collect = 1;
+          type: 2
+        }, function () {
+          _this8.audio.is_collect = 1;
 
           // 收藏时icon切换效果控制
-          this.iconToggle.collect = true;
-          setTimeout(() => {
-            this.iconToggle.collect = false;
+          _this8.iconToggle.collect = true;
+          setTimeout(function () {
+            _this8.iconToggle.collect = false;
           }, 150);
         }, {
           hideLoading: true
         });
       },
       onCancelCollect: function onCancelCollect() {
+        var _this9 = this;
+
         $ajax_post('appcollect/cancle_collect', {
           user_id: 100000,
           id: this.audio.id,
-          type: 2,
-        }, () => {
-          this.audio.is_collect = 0;
+          type: 2
+        }, function () {
+          _this9.audio.is_collect = 0;
         }, {
           hideLoading: true
         });
@@ -695,23 +723,27 @@
         this.comments.list[i].is_like ? this.onCancelCommentLike(i) : this.onCommentLike(i);
       },
       onCommentLike: function onCommentLike(i) {
+        var _this10 = this;
+
         $ajax_post('appcomment/comment_like', {
           user_id: 100000,
-          comment_id: this.comments.list[i].id,
-        }, res => {
-          this.comments.list[i].is_like = 1;
-          this.comments.list[i].like_number++;
+          comment_id: this.comments.list[i].id
+        }, function (res) {
+          _this10.comments.list[i].is_like = 1;
+          _this10.comments.list[i].like_number++;
         }, {
           hideLoading: true
         });
       },
       onCancelCommentLike: function onCancelCommentLike(i) {
+        var _this11 = this;
+
         $ajax_post('appcomment/cancle_comment_like', {
           user_id: 100000,
-          comment_id: this.comments.list[i].id,
-        }, res => {
-          this.comments.list[i].is_like = 0;
-          this.comments.list[i].like_number--;
+          comment_id: this.comments.list[i].id
+        }, function (res) {
+          _this11.comments.list[i].is_like = 0;
+          _this11.comments.list[i].like_number--;
         }, {
           hideLoading: true
         });
@@ -759,10 +791,12 @@
         this.comments.list.unshift(el);
         this.audio.comments++;
       },
-      fnAnswerComment(index, cId, lId = 0) {
-        console.log(index)
-        console.log(cId)
-        console.log(lId)
+      fnAnswerComment: function fnAnswerComment(index, cId) {
+        var lId = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 0;
+
+        console.log(index);
+        console.log(cId);
+        console.log(lId);
         var _this = this;
         api.actionSheet({
           cancelTitle: '取消',
@@ -791,20 +825,21 @@
                 from: api.frameName,
                 callback: 'fnReplyCommentCallback',
                 callbackParams: {
-                  index
+                  index: index
                 }
               }
             });
           }
         });
       },
-      fnReplyCommentCallback(el, params) {
-        console.log(JSON.stringify(el))
-        console.log(JSON.stringify(params))
+      fnReplyCommentCallback: function fnReplyCommentCallback(el, params) {
+        console.log(JSON.stringify(el));
+        console.log(JSON.stringify(params));
         this.comments.list[params.index].answer_list.push(el);
         this.audio.comments++;
       },
-      fnOpenPlayListFrame: function fnOpenPlayListFrame() { 
+
+      fnOpenPlayListFrame: function fnOpenPlayListFrame() {
         api.openFrame({
           name: 'audio_detail_list_frm',
           url: './audio_detail_list_frm.html',
@@ -813,21 +848,21 @@
             h: 'auto'
           },
           pageParam: {
-            id: this.author.id,
+            id: this.author.id
           }
         });
       },
       toAudioAuthor: function toAudioAuthor(id) {
-        console.log(id)
+        console.log(id);
         api.openWin({
           name: 'audio_author_win',
           url: '../../html/audio_author/audio_author_win.html',
           bounces: false,
           pageParam: {
-            id
-          },
+            id: id
+          }
         });
-      },
+      }
     },
     mounted: function mounted() {
       var _this = this;
@@ -863,7 +898,6 @@
     }, function (ret, err) {
       onCloseWin();
     });
-
   };
 
   function GetSlideDirection(moveY) {
@@ -883,18 +917,9 @@
 
   function onCloseWin() {
     api.execScript({
-      script:'onClose();'
+      script: 'onClose();'
     });
   }
-
-  setTimeout(function () {
-    if (typeof api === 'undefined') {
-      api = {
-        pageParam: {}
-      };
-      apiready();
-    }
-  }, 500);
 </script>
 
 </html>

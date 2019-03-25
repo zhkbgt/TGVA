@@ -121,15 +121,26 @@
         });
       },
       toAudioDetail: function toAudioDetail() {
-        api.openWin({
-          name: 'audio_detail_win',
-          url: '../audio_detail/audio_detail_win.html',
-          bounces: false,
-          pageParam: {
-            id: Number(localStorage.getItem('local_audio_id')),
-            from: api.winName,
-          }
-        });
+        var currentAudio = Number(localStorage.getItem('local_audio_id'));
+        console.log(currentAudio)
+
+        if (!currentAudio) {
+          api.toast({
+            msg: '当前暂无播放源',
+            duration: 1500,
+            location: 'bottom'
+          });
+        } else {
+          api.openWin({
+            name: 'audio_detail_win',
+            url: '../audio_detail/audio_detail_win.html',
+            bounces: false,
+            pageParam: {
+              id: currentAudio,
+              from: api.winName,
+            }
+          });
+        }
       },
     }
   });
