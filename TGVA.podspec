@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'TGVA'
-  s.version          = '0.3.4'
+  s.version          = '0.3.5'
   s.summary          = 'big pod '
 
 # This description is used to generate tags and improve search results.
@@ -40,8 +40,7 @@ TODO: Add long description of the pod here. pod pod
      'TGVA' => ['TGVA/Assets/*']
    }
 
-  s.resources = "TGVA/Resource/*"
-
+#  s.resources = "TGVA/Resource/*"
 
   s.vendored_frameworks = 'TGVA.framework'
 
@@ -50,6 +49,6 @@ TODO: Add long description of the pod here. pod pod
 	
   # s.public_header_files = 'Pod/Classes/**/*.h'
   # s.frameworks = 'UIKit', 'MapKit'
-  s.dependency 'TAPI'
+  s.dependency 'FAPI'
  # s.dependency 'IJKMediaFramework'
 end
